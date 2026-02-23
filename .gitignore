@@ -1,0 +1,20 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+
+# Python / Node (if later added)
+__pycache__/
+*.pyc
+node_modules/
+dist/
+build/
+
+# Local runtime / caches
+_runtime/
+_cache/
+_tmp/
+_out/
