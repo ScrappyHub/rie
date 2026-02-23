@@ -1,0 +1,13 @@
+{
+  "schema": "rie.segment_pointer.v1",
+  "segment_id": "seg_001",
+  "source_id": "s_vid_001",
+  "kind": "video_timestamp",
+  "locator": { "label": "12:45–18:10", "start_seconds": 765, "end_seconds": 1090 },
+  "matched_by": {
+    "method": "caption_match",
+    "score": 0.91,
+    "snippets": ["...convolution theorem...", "...Fourier transform of a convolution..."]
+  },
+  "provenance": { "retrieved_at_utc": "2026-02-23T18:03:00Z" }
+}
