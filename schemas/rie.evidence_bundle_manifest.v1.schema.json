@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.rooted.dev/rie/rie.evidence_bundle_manifest.v1.schema.json",
+  "title": "rie.evidence_bundle_manifest.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "bundle_id",
+    "created_at_utc",
+    "query_id",
+    "items",
+    "provenance"
+  ],
+  "properties": {
+    "schema": { "const": "rie.evidence_bundle_manifest.v1" },
+    "bundle_id": { "type": "string" },
+    "created_at_utc": { "type": "string", "format": "date-time" },
+    "query_id": { "type": "string" },
+    "label": { "type": "string" },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id"],
+        "properties": {
+          "source_id": { "type": "string" },
+          "segments": {
+            "type": "array",
+            "items": { "$ref": "rie.segment_pointer.v1.schema.json" }
+          },
+          "notes": { "type": "string", "description": "User notes; must not contain solutions produced by RIE." }
+        }
+      }
+    },
+    "exports": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bibtex": { "type": "string", "description": "Path or ref to generated BibTeX file." },
+        "ris": { "type": "string", "description": "Path or ref to generated RIS file." },
+        "csl_json": { "type": "string", "description": "Path or ref to generated CSL JSON bibliography." }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generated_by", "retrieved_at_utc"],
+      "properties": {
+        "generated_by": { "type": "string", "description": "Tool version identifier, e.g. rie-cli/0.1.0" },
+        "retrieved_at_utc": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
