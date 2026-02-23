@@ -1,0 +1,7 @@
+# Normalize line endings: LF in repo
+* text=auto eol=lf
+
+# Treat JSON/MD as text (LF)
+*.json text eol=lf
+*.md   text eol=lf
+*.txt  text eol=lf
