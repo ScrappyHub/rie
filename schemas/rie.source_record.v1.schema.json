@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.rooted.dev/rie/rie.source_record.v1.schema.json",
+  "title": "rie.source_record.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "source_id",
+    "content_kind",
+    "title",
+    "provenance"
+  ],
+  "not": {
+    "anyOf": [
+      { "required": ["answer"] },
+      { "required": ["solution"] },
+      { "required": ["steps"] },
+      { "required": ["explanation"] }
+    ]
+  },
+  "properties": {
+    "schema": { "const": "rie.source_record.v1" },
+    "source_id": { "type": "string", "description": "Opaque identifier for this source record." },
+    "content_kind": {
+      "type": "string",
+      "enum": ["video", "textbook", "paper", "notes", "dataset", "protocol", "course_page", "syllabus"]
+    },
+    "title": { "type": "string" },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "orcid": { "type": "string" },
+          "affiliation": { "type": "string" }
+        }
+      }
+    },
+    "publisher": { "type": "string" },
+    "year": { "type": "integer", "minimum": 0 },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "doi": { "type": "string" },
+        "isbn": { "type": "string" },
+        "arxiv": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    },
+    "license": { "type": "string", "description": "Human-readable license note; exact licensing is upstream." },
+    "summary": {
+      "type": "string",
+      "description": "High-level topical description (NOT an explanation/answer)."
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discovered_from", "retrieved_at_utc"],
+      "properties": {
+        "discovered_from": { "type": "string", "description": "URL or connector origin that yielded this record." },
+        "retrieved_at_utc": { "type": "string", "format": "date-time" },
+        "canonical_url": { "type": "string" },
+        "content_hash": { "type": "string", "description": "Optional sha256 of a locally held copy (if legally obtained)." }
+      }
+    },
+    "trust_signals": {
+      "type": "array",
+      "items": { "$ref": "rie.trust_signal.v1.schema.json" }
+    }
+  }
+}
