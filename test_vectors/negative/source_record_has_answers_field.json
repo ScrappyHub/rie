@@ -1,0 +1,11 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_bad_001",
+  "content_kind": "notes",
+  "title": "Bad Record",
+  "answer": "This should never exist in RIE outputs.",
+  "provenance": {
+    "discovered_from": "https://example.com",
+    "retrieved_at_utc": "2026-02-23T18:00:00Z"
+  }
+}
