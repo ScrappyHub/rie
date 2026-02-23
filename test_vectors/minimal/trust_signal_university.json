@@ -1,0 +1,12 @@
+{
+  "schema": "rie.trust_signal.v1",
+  "signal_id": "ts_001",
+  "tier": "A",
+  "kind": "domain_verified",
+  "evidence": {
+    "note": "Source hosted on a university domain.",
+    "domain": "mit.edu",
+    "urls": ["https://example.mit.edu/course/notes"]
+  },
+  "observed_at_utc": "2026-02-23T18:01:00Z"
+}
