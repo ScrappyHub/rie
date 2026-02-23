@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.rooted.dev/rie/rie.query_record.v1.schema.json",
+  "title": "rie.query_record.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "query_id",
+    "created_at_utc",
+    "inputs",
+    "intent"
+  ],
+  "properties": {
+    "schema": {
+      "const": "rie.query_record.v1"
+    },
+    "query_id": {
+      "type": "string",
+      "description": "Opaque deterministic or random identifier (hex/uuid/base32) chosen by producer."
+    },
+    "created_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "intent": {
+      "type": "string",
+      "enum": ["learn", "find_sources", "build_bibliography", "watch_lecture", "read_textbook", "lab_protocols"],
+      "description": "User intent classification for retrieval/ranking; not an answer request."
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["keywords", "formula_latex", "image_ref", "diagram_ref", "dataset_ref", "url_ref"]
+          },
+          "text": {
+            "type": "string",
+            "description": "For keywords or latex."
+          },
+          "ref": {
+            "type": "string",
+            "description": "For image/diagram/dataset/url references; may be a path, content hash, or URL."
+          },
+          "mime": {
+            "type": "string",
+            "description": "Optional MIME type for referenced objects."
+          }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "kind": { "enum": ["keywords", "formula_latex"] } }, "required": ["kind"] },
+            "then": { "required": ["text"] }
+          },
+          {
+            "if": { "properties": { "kind": { "enum": ["image_ref", "diagram_ref", "dataset_ref", "url_ref"] } }, "required": ["kind"] },
+            "then": { "required": ["ref"] }
+          }
+        ]
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "level": { "type": "string", "enum": ["hs", "ap", "undergrad", "grad", "research"] },
+        "formats": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["video", "textbook", "paper", "notes", "dataset", "protocol"] }
+        },
+        "language": { "type": "string", "description": "BCP-47 language tag, e.g. en, en-US." }
+      }
+    },
+    "notes": { "type": "string" }
+  }
+}
