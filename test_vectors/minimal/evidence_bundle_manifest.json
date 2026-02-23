@@ -1,0 +1,31 @@
+{
+  "schema": "rie.evidence_bundle_manifest.v1",
+  "bundle_id": "b_001",
+  "created_at_utc": "2026-02-23T18:05:00Z",
+  "query_id": "q_001",
+  "label": "Fourier+Convolution study bundle",
+  "items": [
+    {
+      "source_id": "s_vid_001",
+      "segments": [
+        {
+          "schema": "rie.segment_pointer.v1",
+          "segment_id": "seg_001",
+          "source_id": "s_vid_001",
+          "kind": "video_timestamp",
+          "locator": { "label": "12:45–18:10", "start_seconds": 765, "end_seconds": 1090 },
+          "matched_by": { "method": "caption_match", "score": 0.91, "snippets": ["...convolution theorem..."] },
+          "provenance": { "retrieved_at_utc": "2026-02-23T18:03:00Z" }
+        }
+      ]
+    },
+    { "source_id": "s_txt_001" }
+  ],
+  "exports": {
+    "bibtex": "exports/bibliography.bib"
+  },
+  "provenance": {
+    "generated_by": "rie-cli/0.1.0",
+    "retrieved_at_utc": "2026-02-23T18:05:10Z"
+  }
+}
