@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.rooted.dev/rie/rie.result_set.v1.schema.json",
+  "title": "rie.result_set.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "query_id", "created_at_utc", "results"],
+  "properties": {
+    "schema": { "const": "rie.result_set.v1" },
+    "query_id": { "type": "string" },
+    "created_at_utc": { "type": "string", "format": "date-time" },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rank", "source", "segments"],
+        "properties": {
+          "rank": { "type": "integer", "minimum": 1 },
+          "score": { "type": "number" },
+          "source": { "$ref": "rie.source_record.v1.schema.json" },
+          "segments": {
+            "type": "array",
+            "items": { "$ref": "rie.segment_pointer.v1.schema.json" }
+          }
+        }
+      }
+    }
+  }
+}
