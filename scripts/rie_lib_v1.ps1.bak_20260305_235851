@@ -1,0 +1,279 @@
+Set-StrictMode -Version Latest
+$ErrorActionPreference="Stop"
+
+function RIE-Die([string]$m){ throw $m }
+
+function RIE-HexPrefix([byte[]]$b,[int]$n){
+  if($null -eq $b){ return "" }
+  if($n -lt 1){ $n = 1 }
+  $take = $n; if($b.Length -lt $take){ $take = $b.Length }
+  $sb = New-Object System.Text.StringBuilder
+  for($i=0; $i -lt $take; $i++){
+    [void]$sb.AppendFormat("{0:x2}", $b[$i])
+    if($i -lt ($take-1)){ [void]$sb.Append(" ") }
+  }
+  return $sb.ToString()
+}
+
+function RIE-ParseJson([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  try{
+    $b = [System.IO.File]::ReadAllBytes($Path)
+    $enc = New-Object System.Text.UTF8Encoding($false,$true)
+    $s = $enc.GetString($b)
+    if([string]::IsNullOrWhiteSpace($s)){ RIE-Die ("JSON_EMPTY: " + $Path) }
+    if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) } # BOM
+    $s = $s.Replace("
+","
+").Replace("
+","
+")
+
+    # PS5.1-safe: JavaScriptSerializer (no ConvertFrom-Json -Depth)
+    Add-Type -AssemblyName System.Web.Extensions -ErrorAction Stop
+    $ser = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+    $ser.RecursionLimit = 256
+    $ser.MaxJsonLength = 2147483647
+    $obj = $ser.DeserializeObject($s)
+
+    return (DeepToHashtable $obj)
+  } catch {
+    $m = Set-StrictMode -Version Latest
+$ErrorActionPreference="Stop"
+
+function RIE-Die([string]$m){ throw $m }
+
+function RIE-HexPrefix([byte[]]$b,[int]$n){
+  if($null -eq $b){ return "" }
+  if($n -lt 1){ $n = 1 }
+  $take = $n; if($b.Length -lt $take){ $take = $b.Length }
+  $sb = New-Object System.Text.StringBuilder
+  for($i=0; $i -lt $take; $i++){
+    [void]$sb.AppendFormat("{0:x2}", $b[$i])
+    if($i -lt ($take-1)){ [void]$sb.Append(" ") }
+  }
+  return $sb.ToString()
+}
+
+function RIE-ParseJson([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  $b=$null; $s=""
+  try {
+    $b = [System.IO.File]::ReadAllBytes($Path)
+    $enc = New-Object System.Text.UTF8Encoding($false,$true)
+    $s = $enc.GetString($b)
+    if([string]::IsNullOrWhiteSpace($s)){ RIE-Die ("JSON_EMPTY: " + $Path) }
+    if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) }
+    $s = $s.Replace("`r`n","`n").Replace("`r","`n")
+    $obj = ($s | ConvertFrom-Json -ErrorAction Stop)
+    return $obj
+  } catch {
+    $m = $_.Exception.Message
+    if([string]::IsNullOrWhiteSpace($m)){ $m = ($_ | Out-String) }
+    $m = ($m -replace '(\r\n|\r|\n)',' | ')
+    $hex = RIE-HexPrefix $b 24
+    $fc = ""; if($s -and $s.Length -gt 0){ $fc = ([int][char]$s[0]).ToString() }
+    RIE-Die ("JSON_PARSE_FAIL_V4C: " + $Path + " :: " + $m + " :: HEX_PREFIX=" + $hex + " :: FIRST_CHAR_CODE=" + $fc)
+  }
+}
+
+function RIE-Sha256Hex([byte[]]$Bytes){
+  $sha=[System.Security.Cryptography.SHA256]::Create()
+  try{
+    $h=$sha.ComputeHash($Bytes)
+    $sb=New-Object System.Text.StringBuilder
+    foreach($x in $h){ [void]$sb.AppendFormat("{0:x2}",$x) }
+    return $sb.ToString()
+  } finally { $sha.Dispose() }
+}
+
+function RIE-HashFileUtf8NoBomLf([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  $b=[System.IO.File]::ReadAllBytes($Path)
+  $enc=New-Object System.Text.UTF8Encoding($false,$true)
+  $s=$enc.GetString($b)
+  if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) }
+  $s=$s.Replace("`r`n","`n").Replace("`r","`n")
+  if(-not $s.EndsWith("`n")){ $s += "`n" }
+  $enc2=New-Object System.Text.UTF8Encoding($false)
+  $bytes=$enc2.GetBytes($s)
+  return ("sha256:" + (RIE-Sha256Hex $bytes))
+}
+
+function RIE-ResolveByHash([string]$RepoRoot,[string]$Hash){
+  if([string]::IsNullOrWhiteSpace($RepoRoot)){ RIE-Die "REPO_ROOT_EMPTY" }
+  if([string]::IsNullOrWhiteSpace($Hash)){ RIE-Die "HASH_EMPTY" }
+  $RepoRoot=(Resolve-Path -LiteralPath $RepoRoot).Path
+  $store=Join-Path $RepoRoot "store\by_hash"
+  $safe=$Hash.Trim() -replace '[^\w:\-]+','_'
+  $p=Join-Path $store ($safe + ".json")
+  if(-not (Test-Path -LiteralPath $p -PathType Leaf)){ RIE-Die ("HASH_NOT_FOUND: " + $Hash) }
+  return $p
+}
+.Exception.Message
+    if([string]::IsNullOrWhiteSpace($m)){ $m = (Set-StrictMode -Version Latest
+$ErrorActionPreference="Stop"
+
+function RIE-Die([string]$m){ throw $m }
+
+function RIE-HexPrefix([byte[]]$b,[int]$n){
+  if($null -eq $b){ return "" }
+  if($n -lt 1){ $n = 1 }
+  $take = $n; if($b.Length -lt $take){ $take = $b.Length }
+  $sb = New-Object System.Text.StringBuilder
+  for($i=0; $i -lt $take; $i++){
+    [void]$sb.AppendFormat("{0:x2}", $b[$i])
+    if($i -lt ($take-1)){ [void]$sb.Append(" ") }
+  }
+  return $sb.ToString()
+}
+
+function RIE-ParseJson([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  $b=$null; $s=""
+  try {
+    $b = [System.IO.File]::ReadAllBytes($Path)
+    $enc = New-Object System.Text.UTF8Encoding($false,$true)
+    $s = $enc.GetString($b)
+    if([string]::IsNullOrWhiteSpace($s)){ RIE-Die ("JSON_EMPTY: " + $Path) }
+    if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) }
+    $s = $s.Replace("`r`n","`n").Replace("`r","`n")
+    $obj = ($s | ConvertFrom-Json -ErrorAction Stop)
+    return $obj
+  } catch {
+    $m = $_.Exception.Message
+    if([string]::IsNullOrWhiteSpace($m)){ $m = ($_ | Out-String) }
+    $m = ($m -replace '(\r\n|\r|\n)',' | ')
+    $hex = RIE-HexPrefix $b 24
+    $fc = ""; if($s -and $s.Length -gt 0){ $fc = ([int][char]$s[0]).ToString() }
+    RIE-Die ("JSON_PARSE_FAIL_V4C: " + $Path + " :: " + $m + " :: HEX_PREFIX=" + $hex + " :: FIRST_CHAR_CODE=" + $fc)
+  }
+}
+
+function RIE-Sha256Hex([byte[]]$Bytes){
+  $sha=[System.Security.Cryptography.SHA256]::Create()
+  try{
+    $h=$sha.ComputeHash($Bytes)
+    $sb=New-Object System.Text.StringBuilder
+    foreach($x in $h){ [void]$sb.AppendFormat("{0:x2}",$x) }
+    return $sb.ToString()
+  } finally { $sha.Dispose() }
+}
+
+function RIE-HashFileUtf8NoBomLf([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  $b=[System.IO.File]::ReadAllBytes($Path)
+  $enc=New-Object System.Text.UTF8Encoding($false,$true)
+  $s=$enc.GetString($b)
+  if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) }
+  $s=$s.Replace("`r`n","`n").Replace("`r","`n")
+  if(-not $s.EndsWith("`n")){ $s += "`n" }
+  $enc2=New-Object System.Text.UTF8Encoding($false)
+  $bytes=$enc2.GetBytes($s)
+  return ("sha256:" + (RIE-Sha256Hex $bytes))
+}
+
+function RIE-ResolveByHash([string]$RepoRoot,[string]$Hash){
+  if([string]::IsNullOrWhiteSpace($RepoRoot)){ RIE-Die "REPO_ROOT_EMPTY" }
+  if([string]::IsNullOrWhiteSpace($Hash)){ RIE-Die "HASH_EMPTY" }
+  $RepoRoot=(Resolve-Path -LiteralPath $RepoRoot).Path
+  $store=Join-Path $RepoRoot "store\by_hash"
+  $safe=$Hash.Trim() -replace '[^\w:\-]+','_'
+  $p=Join-Path $store ($safe + ".json")
+  if(-not (Test-Path -LiteralPath $p -PathType Leaf)){ RIE-Die ("HASH_NOT_FOUND: " + $Hash) }
+  return $p
+}
+ | Out-String) }
+    $m = ($m -replace "(\r\n|\r|\n)"," | ")
+    RIE-Die ("JSON_PARSE_FAIL: " + $Path + " :: " + $m)
+  }
+}
+
+function RIE-Sha256Hex([byte[]]$Bytes){
+  $sha=[System.Security.Cryptography.SHA256]::Create()
+  try{
+    $h=$sha.ComputeHash($Bytes)
+    $sb=New-Object System.Text.StringBuilder
+    foreach($x in $h){ [void]$sb.AppendFormat("{0:x2}",$x) }
+    return $sb.ToString()
+  } finally { $sha.Dispose() }
+}
+
+function RIE-HashFileUtf8NoBomLf([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  $b=[System.IO.File]::ReadAllBytes($Path)
+  $enc=New-Object System.Text.UTF8Encoding($false,$true)
+  $s=$enc.GetString($b)
+  if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) }
+  $s=$s.Replace("`r`n","`n").Replace("`r","`n")
+  if(-not $s.EndsWith("`n")){ $s += "`n" }
+  $enc2=New-Object System.Text.UTF8Encoding($false)
+  $bytes=$enc2.GetBytes($s)
+  return ("sha256:" + (RIE-Sha256Hex $bytes))
+}
+
+function RIE-ResolveByHash([string]$RepoRoot,[string]$Hash){
+  if([string]::IsNullOrWhiteSpace($RepoRoot)){ RIE-Die "REPO_ROOT_EMPTY" }
+  if([string]::IsNullOrWhiteSpace($Hash)){ RIE-Die "HASH_EMPTY" }
+  $RepoRoot=(Resolve-Path -LiteralPath $RepoRoot).Path
+  $store=Join-Path $RepoRoot "store\by_hash"
+  $safe=$Hash.Trim() -replace '[^\w:\-]+','_'
+  $p=Join-Path $store ($safe + ".json")
+  if(-not (Test-Path -LiteralPath $p -PathType Leaf)){ RIE-Die ("HASH_NOT_FOUND: " + $Hash) }
+  return $p
+}
+
+function RIE-ParseJson([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  try{
+    $b = [System.IO.File]::ReadAllBytes($Path)
+    $enc = New-Object System.Text.UTF8Encoding($false,$true)
+    $s = $enc.GetString($b)
+    if([string]::IsNullOrWhiteSpace($s)){ RIE-Die ("JSON_EMPTY: " + $Path) }
+    if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) } # BOM
+    $s = $s.Replace("
+","
+").Replace("
+","
+")
+
+    # PS5.1-safe: JavaScriptSerializer (no ConvertFrom-Json -Depth)
+    Add-Type -AssemblyName System.Web.Extensions -ErrorAction Stop
+    $ser = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+    $ser.RecursionLimit = 256
+    $ser.MaxJsonLength = 2147483647
+    $obj = $ser.DeserializeObject($s)
+
+    return (DeepToHashtable $obj)
+  } catch {
+    $m = $_.Exception.Message
+    if([string]::IsNullOrWhiteSpace($m)){ $m = ($_ | Out-String) }
+    $m = ($m -replace "(\r\n|\r|\n)"," | ")
+    RIE-Die ("JSON_PARSE_FAIL: " + $Path + " :: " + $m)
+  }
+}
+
+function RIE-ValidateSourceRecordV1($o,[string]$ctx){
+  if($null -eq $o){ RIE-Die ("SRC_NULL: " + $ctx) }
+  if(-not ($o -is [hashtable])){ RIE-Die ("SRC_NOT_OBJECT: " + $ctx) }
+
+  foreach($k in @("schema","source_id","content_kind","title","provenance","tags")){
+    if(-not $o.ContainsKey($k)){ RIE-Die ("MISSING_PROP:" + $k + ":" + $ctx) }
+  }
+
+  if($o["schema"] -ne "rie.source_record.v1"){ RIE-Die ("BAD_SCHEMA:" + [string]$o["schema"] + ":" + $ctx) }
+
+  # forbid prop: answer
+  if($o.ContainsKey("answer")){ RIE-Die ("FORBIDDEN_PROP:answer:" + $ctx) }
+
+  # provenance object must contain discovered_from and retrieved_at_utc
+  $p = $o["provenance"]
+  if(-not ($p -is [hashtable])){ RIE-Die ("PROVENANCE_NOT_OBJECT:" + $ctx) }
+  foreach($k2 in @("discovered_from","retrieved_at_utc")){
+    if(-not $p.ContainsKey($k2)){ RIE-Die ("MISSING_PROP:provenance." + $k2 + ":" + $ctx) }
+  }
+
+  # tags must be array
+  $t = $o["tags"]
+  if(-not ($t -is [object[]])){ RIE-Die ("TAGS_NOT_ARRAY:" + $ctx) }
+}

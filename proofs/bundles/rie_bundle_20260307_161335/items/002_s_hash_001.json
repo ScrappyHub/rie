@@ -1,0 +1,8 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_hash_001",
+  "content_kind": "paper",
+  "title": "Hash Lookup Example",
+  "provenance": { "discovered_from": "https://example.org/paper", "retrieved_at_utc": "2026-03-06T00:00:00Z" },
+  "tags": ["hash","lookup"]
+}

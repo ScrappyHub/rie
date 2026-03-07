@@ -1,0 +1,108 @@
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+function RIE-Die([string]$m){ throw $m }
+function RIE-ReadUtf8NoBom([string]$Path){ if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }; $b=[System.IO.File]::ReadAllBytes($Path); $enc=New-Object System.Text.UTF8Encoding($false,$true); $enc.GetString($b) }
+function RIE-ParseJson([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  $b = $null
+  $s = ""
+  try {
+    $b = [System.IO.File]::ReadAllBytes($Path)
+    $enc = New-Object System.Text.UTF8Encoding($false,$true)
+    $s = $enc.GetString($b)
+    if([string]::IsNullOrWhiteSpace($s)){ RIE-Die ("JSON_EMPTY: " + $Path) }
+    if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) } # BOM
+    $s = $s.Replace("
+","
+").Replace("
+","
+")
+    $obj = ($s | ConvertFrom-Json -Depth 32 -ErrorAction Stop)
+    return $obj
+  } catch {
+    $m = Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+function RIE-Die([string]$m){ throw $m }
+function RIE-ReadUtf8NoBom([string]$Path){ if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }; $b=[System.IO.File]::ReadAllBytes($Path); $enc=New-Object System.Text.UTF8Encoding($false,$true); $enc.GetString($b) }
+function RIE-ParseJson([string]$Path){ $raw = RIE-ReadUtf8NoBom $Path; try { $raw | ConvertFrom-Json -Depth 200 } catch { RIE-Die ("JSON_PARSE_FAIL: " + $Path) } }
+function RIE-HasProp($o,[string]$name){ if($null -eq $o){ return $false }; @(@($o.PSObject.Properties.Name)) -contains $name }
+function RIE-AssertHasProps($o,[string[]]$names,[string]$ctx){ foreach($n in @(@($names))){ if(-not (RIE-HasProp $o $n)){ RIE-Die ("MISSING_PROP: " + $ctx + " :: " + $n) } } }
+function RIE-AssertNoProps($o,[string[]]$names,[string]$ctx){ foreach($n in @(@($names))){ if(RIE-HasProp $o $n){ RIE-Die ("FORBIDDEN_PROP: " + $ctx + " :: " + $n) } } }
+function RIE-ValidateSourceRecordV1($o,[string]$ctx){ RIE-AssertNoProps $o @("answer","solution","steps","explanation") $ctx; RIE-AssertHasProps $o @("schema","source_id","content_kind","title","provenance") $ctx; if([string]$o.schema -ne "rie.source_record.v1"){ RIE-Die ("BAD_SCHEMA: " + $ctx) }; $p=$o.provenance; RIE-AssertHasProps $p @("discovered_from","retrieved_at_utc") ($ctx + ".provenance") }
+
+function RIE-ParseJson([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  try {
+    $b = [System.IO.File]::ReadAllBytes($Path)
+    $enc = New-Object System.Text.UTF8Encoding($false,$true)
+    $s = $enc.GetString($b)
+    if([string]::IsNullOrWhiteSpace($s)){ RIE-Die ("JSON_EMPTY: " + $Path) }
+    if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) } # BOM
+    $s = $s.Replace("
+","
+").Replace("
+","
+")
+    $obj = ($s | ConvertFrom-Json -Depth 32 -ErrorAction Stop)
+    return $obj
+  } catch {
+    $m = $_.Exception.Message
+    if([string]::IsNullOrWhiteSpace($m)){ $m = ($_ | Out-String) }
+    $m = ($m -replace "(\r\n|\r|\n)"," | ")
+    RIE-Die ("JSON_PARSE_FAIL_V4: " + $Path + " :: " + $m)
+  }
+}
+.Exception.Message
+    if([string]::IsNullOrWhiteSpace($m)){ $m = (Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+function RIE-Die([string]$m){ throw $m }
+function RIE-ReadUtf8NoBom([string]$Path){ if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }; $b=[System.IO.File]::ReadAllBytes($Path); $enc=New-Object System.Text.UTF8Encoding($false,$true); $enc.GetString($b) }
+function RIE-ParseJson([string]$Path){ $raw = RIE-ReadUtf8NoBom $Path; try { $raw | ConvertFrom-Json -Depth 200 } catch { RIE-Die ("JSON_PARSE_FAIL: " + $Path) } }
+function RIE-HasProp($o,[string]$name){ if($null -eq $o){ return $false }; @(@($o.PSObject.Properties.Name)) -contains $name }
+function RIE-AssertHasProps($o,[string[]]$names,[string]$ctx){ foreach($n in @(@($names))){ if(-not (RIE-HasProp $o $n)){ RIE-Die ("MISSING_PROP: " + $ctx + " :: " + $n) } } }
+function RIE-AssertNoProps($o,[string[]]$names,[string]$ctx){ foreach($n in @(@($names))){ if(RIE-HasProp $o $n){ RIE-Die ("FORBIDDEN_PROP: " + $ctx + " :: " + $n) } } }
+function RIE-ValidateSourceRecordV1($o,[string]$ctx){ RIE-AssertNoProps $o @("answer","solution","steps","explanation") $ctx; RIE-AssertHasProps $o @("schema","source_id","content_kind","title","provenance") $ctx; if([string]$o.schema -ne "rie.source_record.v1"){ RIE-Die ("BAD_SCHEMA: " + $ctx) }; $p=$o.provenance; RIE-AssertHasProps $p @("discovered_from","retrieved_at_utc") ($ctx + ".provenance") }
+
+function RIE-ParseJson([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-Die ("FILE_MISSING: " + $Path) }
+  try {
+    $b = [System.IO.File]::ReadAllBytes($Path)
+    $enc = New-Object System.Text.UTF8Encoding($false,$true)
+    $s = $enc.GetString($b)
+    if([string]::IsNullOrWhiteSpace($s)){ RIE-Die ("JSON_EMPTY: " + $Path) }
+    if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) } # BOM
+    $s = $s.Replace("
+","
+").Replace("
+","
+")
+    $obj = ($s | ConvertFrom-Json -Depth 32 -ErrorAction Stop)
+    return $obj
+  } catch {
+    $m = $_.Exception.Message
+    if([string]::IsNullOrWhiteSpace($m)){ $m = ($_ | Out-String) }
+    $m = ($m -replace "(\r\n|\r|\n)"," | ")
+    RIE-Die ("JSON_PARSE_FAIL_V4: " + $Path + " :: " + $m)
+  }
+}
+ | Out-String) }
+    $m = ($m -replace "(\r\n|\r|\n)"," | ")
+
+    # hex prefix (first 24 bytes) + first char code
+    $hex = ""
+    if($b -ne $null -and $b.Length -gt 0){
+      $take = 24; if($b.Length -lt $take){ $take = $b.Length }
+      $sb = New-Object System.Text.StringBuilder
+      for($i=0; $i -lt $take; $i++){
+        [void]$sb.AppendFormat("{0:x2}", $b[$i])
+        if($i -lt ($take-1)){ [void]$sb.Append(" ") }
+      }
+      $hex = $sb.ToString()
+    }
+
+    $fc = ""
+    if($s -and $s.Length -gt 0){ $fc = ([int][char]$s[0]).ToString() }
+
+    RIE-Die ("JSON_PARSE_FAIL_V4C: " + $Path + " :: " + $m + " :: HEX_PREFIX=" + $hex + " :: FIRST_CHAR_CODE=" + $fc)
+  }
+}

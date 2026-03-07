@@ -1,0 +1,164 @@
+param([Parameter(Mandatory=$true)][string]$RepoRoot)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+function Die([string]$m){ throw $m }
+
+function Ensure-Dir([string]$Path){
+  if([string]::IsNullOrWhiteSpace($Path)){ return }
+  if(-not (Test-Path -LiteralPath $Path -PathType Container)){
+    New-Item -ItemType Directory -Force -Path $Path | Out-Null
+  }
+}
+
+function Write-Utf8NoBomLf([string]$Path,[string]$Text){
+  if([string]::IsNullOrWhiteSpace($Path)){ Die "WRITE_PATH_EMPTY" }
+  $dir = Split-Path -Parent $Path
+  if($dir -and -not (Test-Path -LiteralPath $dir -PathType Container)){
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+  }
+  $t = $Text.Replace("`r`n","`n").Replace("`r","`n")
+  if(-not $t.EndsWith("`n")){ $t += "`n" }
+  $enc = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($Path,$t,$enc)
+}
+
+function Parse-GateFile([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ Die ("PARSEGATE_MISSING: " + $Path) }
+  $tok=$null; $err=$null
+  [void][System.Management.Automation.Language.Parser]::ParseFile($Path,[ref]$tok,[ref]$err)
+  $errs=@(@($err))
+  if($errs -and $errs.Count -gt 0){
+    $msg = ($errs | ForEach-Object { $_.ToString() }) -join "`n"
+    Die ("PARSEGATE_FAIL: " + $Path + "`n" + $msg)
+  }
+}
+
+function Sha256HexFile([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ Die ("FILE_MISSING: " + $Path) }
+  $sha = [System.Security.Cryptography.SHA256]::Create()
+  try{
+    $fs = [System.IO.File]::OpenRead($Path)
+    try{
+      $h = $sha.ComputeHash($fs)
+    } finally {
+      $fs.Dispose()
+    }
+    $sb = New-Object System.Text.StringBuilder
+    foreach($x in $h){ [void]$sb.AppendFormat("{0:x2}", $x) }
+    return $sb.ToString()
+  } finally {
+    $sha.Dispose()
+  }
+}
+
+function Run-ChildLogged([string]$PsExe,[string]$ScriptPath,[string]$RepoRoot,[string]$StdOut,[string]$StdErr,[string]$RequiredToken){
+  if(-not (Test-Path -LiteralPath $ScriptPath -PathType Leaf)){ Die ("CHILD_SCRIPT_MISSING: " + $ScriptPath) }
+
+  $argList = @(
+    "-NoProfile",
+    "-NonInteractive",
+    "-ExecutionPolicy", "Bypass",
+    "-File", $ScriptPath,
+    "-RepoRoot", $RepoRoot
+  )
+
+  $psi = New-Object System.Diagnostics.ProcessStartInfo
+  $psi.FileName = $PsExe
+  $psi.Arguments = [string]::Join(" ", ($argList | ForEach-Object {
+    if($_ -match '\s'){ '"' + $_ + '"' } else { $_ }
+  }))
+  $psi.UseShellExecute = $false
+  $psi.CreateNoWindow = $true
+  $psi.RedirectStandardOutput = $true
+  $psi.RedirectStandardError = $true
+
+  $p = New-Object System.Diagnostics.Process
+  $p.StartInfo = $psi
+  [void]$p.Start()
+  $stdout = $p.StandardOutput.ReadToEnd()
+  $stderr = $p.StandardError.ReadToEnd()
+  $p.WaitForExit()
+
+  Write-Utf8NoBomLf $StdOut $stdout
+  Write-Utf8NoBomLf $StdErr $stderr
+
+  if($p.ExitCode -ne 0){
+    throw ("CHILD_EXIT_NONZERO: " + $ScriptPath + " :: " + $p.ExitCode)
+  }
+  if($stdout.IndexOf($RequiredToken,[System.StringComparison]::Ordinal) -lt 0){
+    throw ("CHILD_MISSING_TOKEN: " + $RequiredToken + " :: " + $ScriptPath)
+  }
+}
+
+$RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
+$PsExe = (Get-Command powershell.exe -ErrorAction Stop).Source
+
+$Scripts  = Join-Path $RepoRoot "scripts"
+$Proofs   = Join-Path $RepoRoot "proofs"
+$Logs     = Join-Path $Proofs "logs"
+$Receipts = Join-Path $Proofs "receipts"
+$Hashes   = Join-Path $Proofs "hashes"
+
+Ensure-Dir $Logs
+Ensure-Dir $Receipts
+Ensure-Dir $Hashes
+
+$Lib      = Join-Path $Scripts "rie_lib_v1.ps1"
+$SelfA    = Join-Path $Scripts "_selftest_rie_v1.ps1"
+$HashLib  = Join-Path $Scripts "rie_hash_store_v1.ps1"
+$SelfB    = Join-Path $Scripts "_selftest_rie_hash_lookup_v1.ps1"
+
+Write-Host "RIE_TIER0_RUNNER_V1_START" -ForegroundColor Cyan
+
+Parse-GateFile $Lib
+Parse-GateFile $SelfA
+Parse-GateFile $HashLib
+Parse-GateFile $SelfB
+
+Write-Host ("PARSEGATE_OK: " + $Lib) -ForegroundColor Green
+Write-Host ("PARSEGATE_OK: " + $SelfA) -ForegroundColor Green
+Write-Host ("PARSEGATE_OK: " + $HashLib) -ForegroundColor Green
+Write-Host ("PARSEGATE_OK: " + $SelfB) -ForegroundColor Green
+
+$stamp = (Get-Date).ToUniversalTime().ToString("yyyyMMdd_HHmmss")
+
+$selfAOut = Join-Path $Logs ("rie_selftest_stdout_" + $stamp + ".log")
+$selfAErr = Join-Path $Logs ("rie_selftest_stderr_" + $stamp + ".log")
+Run-ChildLogged $PsExe $SelfA $RepoRoot $selfAOut $selfAErr "RIE_SELFTEST_V1_OK"
+Write-Host ("SELFTEST_OK: " + $SelfA) -ForegroundColor Green
+
+$selfBOut = Join-Path $Logs ("rie_hash_selftest_stdout_" + $stamp + ".log")
+$selfBErr = Join-Path $Logs ("rie_hash_selftest_stderr_" + $stamp + ".log")
+Run-ChildLogged $PsExe $SelfB $RepoRoot $selfBOut $selfBErr "RIE_HASH_LOOKUP_SELFTEST_V1_OK"
+Write-Host ("SELFTEST_OK: " + $SelfB) -ForegroundColor Green
+
+$receiptPath = Join-Path $Receipts "rie.tier0.runner.v1.ndjson"
+$receiptObj = [ordered]@{
+  schema = "rie.tier0.runner.v1"
+  utc = (Get-Date).ToUniversalTime().ToString("o")
+  repo_root = $RepoRoot
+  selftest_primary_stdout = $selfAOut
+  selftest_primary_stderr = $selfAErr
+  selftest_hash_stdout = $selfBOut
+  selftest_hash_stderr = $selfBErr
+  selftest_primary_stdout_sha256 = (Sha256HexFile $selfAOut)
+  selftest_primary_stderr_sha256 = (Sha256HexFile $selfAErr)
+  selftest_hash_stdout_sha256 = (Sha256HexFile $selfBOut)
+  selftest_hash_stderr_sha256 = (Sha256HexFile $selfBErr)
+  ok = $true
+}
+$receiptLine = ($receiptObj | ConvertTo-Json -Compress)
+Write-Utf8NoBomLf $receiptPath ($receiptLine + "`n")
+
+$hashList = New-Object System.Collections.Generic.List[string]
+foreach($p in @($selfAOut,$selfAErr,$selfBOut,$selfBErr,$receiptPath)){
+  [void]$hashList.Add((Sha256HexFile $p) + "  " + $p)
+}
+$hashManifest = Join-Path $Hashes ("rie_tier0_runner_" + $stamp + "_sha256sums.txt")
+Write-Utf8NoBomLf $hashManifest ((@($hashList.ToArray()) -join "`n") + "`n")
+
+Write-Host ("RECEIPT_OK: " + $receiptPath) -ForegroundColor Green
+Write-Host ("HASH_MANIFEST_OK: " + $hashManifest) -ForegroundColor Green
+Write-Host "RIE_TIER0_V1_OK" -ForegroundColor Green

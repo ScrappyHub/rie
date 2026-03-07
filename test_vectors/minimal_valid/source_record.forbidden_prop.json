@@ -1,0 +1,8 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_bad_001",
+  "content_kind": "video",
+  "title": "Bad Example",
+  "provenance": { "discovered_from": "x", "retrieved_at_utc": "y" },
+  "answer": "NOPE"
+}

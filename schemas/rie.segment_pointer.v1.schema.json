@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.rooted.dev/rie/rie.segment_pointer.v1.schema.json",
+  "title": "rie.segment_pointer.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "segment_id", "source_id", "kind", "locator", "matched_by", "provenance"],
+  "properties": {
+    "schema": { "const": "rie.segment_pointer.v1" },
+    "segment_id": { "type": "string" },
+    "source_id": { "type": "string", "description": "Links to rie.source_record.v1.source_id" },
+    "kind": { "type": "string", "enum": ["video_timestamp", "textbook_section", "paper_section", "page_range"] },
+    "locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label"],
+      "properties": {
+        "label": { "type": "string", "description": "Human-friendly pointer e.g. '12:45–18:10' or 'Ch 3.2'." },
+        "start_seconds": { "type": "integer", "minimum": 0 },
+        "end_seconds": { "type": "integer", "minimum": 0 },
+        "chapter": { "type": "string" },
+        "section": { "type": "string" },
+        "page_start": { "type": "integer", "minimum": 1 },
+        "page_end": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "matched_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method"],
+      "properties": {
+        "method": { "type": "string", "enum": ["keyword", "caption_match", "equation_match", "image_match", "citation_graph"] },
+        "score": { "type": "number" },
+        "snippets": {
+          "type": "array",
+          "description": "Short excerpts supporting relevance; bounded by UI policy.",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["retrieved_at_utc"],
+      "properties": {
+        "retrieved_at_utc": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

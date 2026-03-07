@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.rooted.dev/rie/rie.trust_signal.v1.schema.json",
+  "title": "rie.trust_signal.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "signal_id", "tier", "kind", "evidence", "observed_at_utc"],
+  "properties": {
+    "schema": { "const": "rie.trust_signal.v1" },
+    "signal_id": { "type": "string" },
+    "tier": { "type": "string", "enum": ["A", "B", "C"] },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "domain_verified",
+        "doi_registry_present",
+        "publisher_verified",
+        "orcid_linked",
+        "institution_directory_match",
+        "lab_page_linked",
+        "syllabus_linked",
+        "government_science_source"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["note"],
+      "properties": {
+        "note": { "type": "string" },
+        "urls": { "type": "array", "items": { "type": "string" } },
+        "domain": { "type": "string" },
+        "doi": { "type": "string" },
+        "orcid": { "type": "string" }
+      }
+    },
+    "observed_at_utc": { "type": "string", "format": "date-time" }
+  }
+}

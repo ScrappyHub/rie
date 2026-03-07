@@ -1,0 +1,7 @@
+JSON_PARSE_FAIL: C:\dev\rie\test_vectors\minimal_valid\source_record.v1.json
+At C:\dev\rie\scripts\rie_lib_v1.ps1:3 char:31
++ function RIE-Die([string]$m){ throw $m }
++                               ~~~~~~~~
+    + CategoryInfo          : OperationStopped: (JSON_PARSE_FAIL..._record.v1.json:String) [], RuntimeException
+    + FullyQualifiedErrorId : JSON_PARSE_FAIL: C:\dev\rie\test_vectors\minimal_valid\source_record.v1.json
+ 

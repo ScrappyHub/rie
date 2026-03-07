@@ -1,0 +1,90 @@
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+function RIE-HashDie([string]$m){ throw $m }
+
+function RIE-Sha256Hex([byte[]]$Bytes){
+  $sha = [System.Security.Cryptography.SHA256]::Create()
+  try{
+    $h = $sha.ComputeHash($Bytes)
+    $sb = New-Object System.Text.StringBuilder
+    foreach($x in $h){ [void]$sb.AppendFormat("{0:x2}", $x) }
+    return $sb.ToString()
+  } finally {
+    $sha.Dispose()
+  }
+}
+
+function RIE-ReadFileUtf8NoBomLfCanonical([string]$Path){
+  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ RIE-HashDie ("FILE_MISSING: " + $Path) }
+  $b = [System.IO.File]::ReadAllBytes($Path)
+  $enc = New-Object System.Text.UTF8Encoding($false,$true)
+  $s = $enc.GetString($b)
+  if($s.Length -gt 0 -and [int][char]$s[0] -eq 65279){ $s = $s.Substring(1) }
+  $s = $s.Replace("`r`n","`n").Replace("`r","`n")
+  if(-not $s.EndsWith("`n")){ $s += "`n" }
+  return $s
+}
+
+function RIE-HashFileUtf8NoBomLf([string]$Path){
+  $s = RIE-ReadFileUtf8NoBomLfCanonical $Path
+  $enc = New-Object System.Text.UTF8Encoding($false)
+  $bytes = $enc.GetBytes($s)
+  return ("sha256:" + (RIE-Sha256Hex $bytes))
+}
+
+function RIE-SanitizeHashForFileName([string]$Hash){
+  if([string]::IsNullOrWhiteSpace($Hash)){ RIE-HashDie "HASH_EMPTY" }
+
+  $h = $Hash.Trim()
+
+  if($h.StartsWith("sha256:", [System.StringComparison]::OrdinalIgnoreCase)){
+    $h = "sha256_" + $h.Substring(7)
+  }
+
+  $h = $h -replace '[<>:"/\\|?*]+','_'
+  $h = $h -replace '\s+','_'
+  $h = $h.Trim('.')
+
+  if([string]::IsNullOrWhiteSpace($h)){ RIE-HashDie "HASH_SANITIZE_EMPTY" }
+  return $h
+}
+
+function RIE-ResolveByHash([string]$RepoRoot,[string]$Hash){
+  if([string]::IsNullOrWhiteSpace($RepoRoot)){ RIE-HashDie "REPO_ROOT_EMPTY" }
+  if([string]::IsNullOrWhiteSpace($Hash)){ RIE-HashDie "HASH_EMPTY" }
+  $RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
+  $store = Join-Path $RepoRoot "store\by_hash"
+  $safe = RIE-SanitizeHashForFileName $Hash
+  $p = Join-Path $store ($safe + ".json")
+  if(-not (Test-Path -LiteralPath $p -PathType Leaf)){ RIE-HashDie ("HASH_NOT_FOUND: " + $Hash) }
+  return $p
+}
+
+function RIE-PublishFileToHashStore([string]$RepoRoot,[string]$InputPath){
+  if([string]::IsNullOrWhiteSpace($RepoRoot)){ RIE-HashDie "REPO_ROOT_EMPTY" }
+  if([string]::IsNullOrWhiteSpace($InputPath)){ RIE-HashDie "INPUT_PATH_EMPTY" }
+
+  $RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
+  if(-not (Test-Path -LiteralPath $InputPath -PathType Leaf)){ RIE-HashDie ("FILE_MISSING: " + $InputPath) }
+
+  $hash = RIE-HashFileUtf8NoBomLf $InputPath
+  $safe = RIE-SanitizeHashForFileName $hash
+  $store = Join-Path $RepoRoot "store\by_hash"
+
+  if(-not (Test-Path -LiteralPath $store -PathType Container)){
+    New-Item -ItemType Directory -Force -Path $store | Out-Null
+  }
+
+  $dest = Join-Path $store ($safe + ".json")
+  $content = RIE-ReadFileUtf8NoBomLfCanonical $InputPath
+  $enc = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($dest, $content, $enc)
+
+  [pscustomobject]@{
+    ok = $true
+    hash = $hash
+    stored_path = $dest
+    file_key = $safe
+  }
+}

@@ -1,0 +1,5 @@
+7afe6ef804bb424813475660e81d1fcb6b58f9e44ad4bf467ac6f96251ec1aa2  C:\dev\rie\proofs\logs\rie_selftest_stdout_20260307_033840.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  C:\dev\rie\proofs\logs\rie_selftest_stderr_20260307_033840.log
+b6f4043519f225c649b87dce1238b3287d40d34dbfaeae0338cee1f88992e623  C:\dev\rie\proofs\logs\rie_hash_selftest_stdout_20260307_033840.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  C:\dev\rie\proofs\logs\rie_hash_selftest_stderr_20260307_033840.log
+ddad29b18af85a3136fbf682c752d562d27de0381d04bbda1cad998a7a958c11  C:\dev\rie\proofs\receipts\rie.tier0.runner.v1.ndjson

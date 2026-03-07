@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RIE Keyword Index v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generated_at_utc",
+    "source_count",
+    "keyword_count",
+    "sources",
+    "keywords"
+  ],
+  "properties": {
+    "schema": { "const": "rie.keyword_index.v1" },
+    "generated_at_utc": { "type": "string", "minLength": 1 },
+    "source_count": { "type": "integer", "minimum": 0 },
+    "keyword_count": { "type": "integer", "minimum": 0 },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "path",
+          "hash"
+        ],
+        "properties": {
+          "source_id": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "hash": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "keywords": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
