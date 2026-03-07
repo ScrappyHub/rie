@@ -1,7 +1,9 @@
 RIE_TIER0_FREEZE_OK
+STATUS=GREEN
 RUNNER=scripts/_RUN_rie_tier0_v1.ps1
 PRIMARY_SELFTEST=scripts/_selftest_rie_v1.ps1
 HASH_SELFTEST=scripts/_selftest_rie_hash_lookup_v1.ps1
 QUERY_SELFTEST=scripts/_selftest_rie_query_v1.ps1
-STATUS=GREEN
-LOCK_SCOPE=Tier-0 standalone retrieval/index/hash/bundle core
+RECEIPT=proofs/receipts/rie.tier0.runner.v1.ndjson
+HASH_MANIFEST=proofs/hashes/rie_tier0_runner_20260307_033840_sha256sums.txt
+LOCK_SCOPE=Tier-0 standalone deterministic retrieval core
