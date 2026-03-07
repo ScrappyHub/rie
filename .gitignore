@@ -2,19 +2,31 @@
 .DS_Store
 Thumbs.db
 
-# Editors
-.vscode/
-.idea/
+# PowerShell / editors
+*.tmp
+*.log.bak
+*.user
+*.orig
 
-# Python / Node (if later added)
-__pycache__/
-*.pyc
-node_modules/
-dist/
-build/
+# Scratch and backups
+scripts/_scratch/*
+!scripts/_scratch/.gitkeep
+*.bak_*
+*.bak
 
-# Local runtime / caches
-_runtime/
-_cache/
-_tmp/
-_out/
+# Runtime/log noise
+proofs/logs/*
+!proofs/logs/.gitkeep
+
+# Optional local handoff/debug zips
+proofs/handoff/*
+!proofs/handoff/.gitkeep
+
+# Store runtime content can be committed selectively if part of a freeze;
+# otherwise ignore ad hoc material:
+store/by_hash/*
+!store/by_hash/.gitkeep
+
+# If you want only frozen proof artifacts committed, leave these ignored and add frozen files explicitly
+# proofs/receipts/*
+# proofs/hashes/*
