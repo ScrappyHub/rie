@@ -1,0 +1,11 @@
+{
+  "schema": "rie.query_record.v1",
+  "query_id": "q_001",
+  "created_at_utc": "2026-02-23T18:00:00Z",
+  "intent": "learn",
+  "inputs": [
+    { "kind": "keywords", "text": "Fourier transform convolution theorem" },
+    { "kind": "formula_latex", "text": "\\mathcal{F}\\{f * g\\} = \\mathcal{F}\\{f\\}\\,\\mathcal{F}\\{g\\}" }
+  ],
+  "constraints": { "level": "undergrad", "formats": ["video", "textbook", "paper"], "language": "en" }
+}

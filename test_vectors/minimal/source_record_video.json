@@ -1,0 +1,24 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_vid_001",
+  "content_kind": "video",
+  "title": "Convolution and Fourier Transform (Lecture)",
+  "authors": [{ "name": "Example Professor", "affiliation": "Example University" }],
+  "identifiers": { "url": "https://example.edu/lectures/convolution" },
+  "summary": "Lecture covering convolution and Fourier transform relationships.",
+  "provenance": {
+    "discovered_from": "https://example.edu/course/page",
+    "retrieved_at_utc": "2026-02-23T18:02:00Z",
+    "canonical_url": "https://example.edu/lectures/convolution"
+  },
+  "trust_signals": [
+    {
+      "schema": "rie.trust_signal.v1",
+      "signal_id": "ts_001",
+      "tier": "A",
+      "kind": "domain_verified",
+      "evidence": { "note": "University-hosted", "domain": "example.edu" },
+      "observed_at_utc": "2026-02-23T18:01:00Z"
+    }
+  ]
+}

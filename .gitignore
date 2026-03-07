@@ -1,0 +1,32 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# PowerShell / editors
+*.tmp
+*.log.bak
+*.user
+*.orig
+
+# Scratch and backups
+scripts/_scratch/*
+!scripts/_scratch/.gitkeep
+*.bak_*
+*.bak
+
+# Runtime/log noise
+proofs/logs/*
+!proofs/logs/.gitkeep
+
+# Optional local handoff/debug zips
+proofs/handoff/*
+!proofs/handoff/.gitkeep
+
+# Store runtime content can be committed selectively if part of a freeze;
+# otherwise ignore ad hoc material:
+store/by_hash/*
+!store/by_hash/.gitkeep
+
+# If you want only frozen proof artifacts committed, leave these ignored and add frozen files explicitly
+# proofs/receipts/*
+# proofs/hashes/*
