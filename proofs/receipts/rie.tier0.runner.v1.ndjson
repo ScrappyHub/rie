@@ -1,0 +1,14 @@
+{
+  "schema":"rie.tier0.runner.v1",
+  "utc":"<generated timestamp>",
+  "repo_root":"C:\\dev\\rie",
+  "selftest_primary_stdout":"<path>",
+  "selftest_primary_stderr":"<path>",
+  "selftest_hash_stdout":"<path>",
+  "selftest_hash_stderr":"<path>",
+  "selftest_primary_stdout_sha256":"<hex>",
+  "selftest_primary_stderr_sha256":"<hex>",
+  "selftest_hash_stdout_sha256":"<hex>",
+  "selftest_hash_stderr_sha256":"<hex>",
+  "ok":true
+}
