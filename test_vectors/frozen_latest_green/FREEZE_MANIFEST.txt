@@ -1,9 +1,12 @@
 RIE_TIER0_FREEZE_OK
-STATUS=GREEN
+FREEZE_UTC=2026-03-07T03:38:40Z
 RUNNER=scripts/_RUN_rie_tier0_v1.ps1
 PRIMARY_SELFTEST=scripts/_selftest_rie_v1.ps1
 HASH_SELFTEST=scripts/_selftest_rie_hash_lookup_v1.ps1
 QUERY_SELFTEST=scripts/_selftest_rie_query_v1.ps1
 RECEIPT=proofs/receipts/rie.tier0.runner.v1.ndjson
 HASH_MANIFEST=proofs/hashes/rie_tier0_runner_20260307_033840_sha256sums.txt
-LOCK_SCOPE=Tier-0 standalone deterministic retrieval core
+INDEX_PROOF=proofs/index/rie.keyword_index.v1.json
+QUERY_PROOF=proofs/queries/rie_result_set_example_lecture_demo.json
+STATUS=GREEN
+TOKEN=RIE_TIER0_V1_OK
