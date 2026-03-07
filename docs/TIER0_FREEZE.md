@@ -1,39 +1,33 @@
 # RIE Tier-0 Freeze
 
-This repository contains a frozen latest-green Tier-0 state.
+## What is frozen
+This document records the first locked green Tier-0 state for RIE.
 
-## Freeze Definition
+## Authoritative runner
+- `scripts/_RUN_rie_tier0_v1.ps1`
 
-Tier-0 is green when a clean machine can deterministically:
+## Authoritative selftests
+- `scripts/_selftest_rie_v1.ps1`
+- `scripts/_selftest_rie_hash_lookup_v1.ps1`
+- `scripts/_selftest_rie_query_v1.ps1`
 
-1. parse-gate the authoritative scripts
-2. run source validation selftests
-3. run hash lookup selftests
-4. run query selftests
-5. emit a deterministic runner receipt
-6. emit a deterministic sha256 manifest
-7. print `RIE_TIER0_V1_OK`
+## Core locked capabilities
+- deterministic source-record validation
+- deterministic keyword index generation
+- deterministic query result-set generation
+- deterministic hash-store publish/resolve
+- deterministic receipts and hash manifests
 
-## Authoritative Runner
-
-`scripts/_RUN_rie_tier0_v1.ps1`
-
-## Frozen Artifacts
-
-- `test_vectors/frozen_latest_green/FREEZE_MANIFEST.txt`
-- `test_vectors/frozen_latest_green/CANONICAL_STATUS.md`
+## Freeze evidence
 - `proofs/receipts/rie.tier0.runner.v1.ndjson`
 - `proofs/hashes/rie_tier0_runner_20260307_033840_sha256sums.txt`
+- `proofs/index/rie.keyword_index.v1.json`
+- `proofs/queries/rie_result_set_example_lecture_demo.json`
+- `test_vectors/frozen_latest_green/FREEZE_MANIFEST.txt`
+- `test_vectors/frozen_latest_green/CANONICAL_STATUS.md`
 
-## Lock Meaning
+## Freeze token
+`RIE_TIER0_V1_OK`
 
-This freeze locks behavior for:
-- source validation
-- keyword indexing
-- keyword querying
-- hash publishing
-- hash resolution
-- result set generation
-- receipt/hash manifest emission
-
-UI work must conform to this locked behavior rather than redefine it.
+## Notes
+This freeze captures standalone Tier-0 behavior only. UI/product layers and future integrations must conform to this frozen behavior rather than redefine it.
