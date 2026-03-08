@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.rooted.dev/rie/rie.source_evaluation.v1.schema.json",
+  "title": "rie.source_evaluation.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "evaluation_id",
+    "evaluated_at_utc",
+    "source_id",
+    "audience_band",
+    "checks",
+    "summary"
+  ],
+  "properties": {
+    "schema": { "const": "rie.source_evaluation.v1" },
+    "evaluation_id": { "type": "string", "minLength": 1 },
+    "evaluated_at_utc": { "type": "string", "format": "date-time" },
+    "source_id": { "type": "string", "minLength": 1 },
+    "source_hash": { "type": "string" },
+    "audience_band": {
+      "type": "string",
+      "enum": ["child_7_10", "child_11_13", "teen", "adult"]
+    },
+    "domain_profile_ref": { "type": "string" },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["check_id", "kind", "status"],
+        "properties": {
+          "check_id": { "type": "string", "minLength": 1 },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "provenance_present",
+              "institutional_or_publisher_anchor",
+              "trust_signal_count",
+              "forbidden_answer_like_pattern",
+              "domain_policy",
+              "audience_policy",
+              "community_source_gate",
+              "video_platform_gate",
+              "domain_dominance_risk",
+              "metadata_consistency"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pass", "warn", "fail"]
+          },
+          "detail": { "type": "string" },
+          "reason_code": { "type": "string" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed_count",
+        "warn_count",
+        "failed_count",
+        "final_recommendation"
+      ],
+      "properties": {
+        "passed_count": { "type": "integer", "minimum": 0 },
+        "warn_count": { "type": "integer", "minimum": 0 },
+        "failed_count": { "type": "integer", "minimum": 0 },
+        "final_recommendation": {
+          "type": "string",
+          "enum": ["ALLOW_CHILD_SAFE", "ALLOW_WITH_EDUCATOR_WARNING", "QUARANTINE_REVIEW_ONLY", "DOWNRANK", "DENY"]
+        }
+      }
+    }
+  }
+}
