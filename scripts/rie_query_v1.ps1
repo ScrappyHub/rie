@@ -1,166 +1,214 @@
 param(
   [Parameter(Mandatory=$true)][string]$RepoRoot,
-  [Parameter(Mandatory=$true)][string]$Query
+  [Parameter(Mandatory=$true)][string]$QueryPath,
+  [Parameter(Mandatory=$true)][string]$IndexPath,
+  [Parameter(Mandatory=$true)][string]$AudiencePolicyPath,
+  [Parameter(Mandatory=$true)][string]$SourcePolicyPath,
+  [Parameter(Mandatory=$false)][string]$DomainProfilesPath,
+  [Parameter(Mandatory=$false)][string]$OutPath
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-function Die([string]$m){ throw $m }
+. (Join-Path $RepoRoot "scripts\rie_source_governance_v1.ps1")
 
-function Ensure-Dir([string]$Path){
-  if([string]::IsNullOrWhiteSpace($Path)){ return }
-  if(-not (Test-Path -LiteralPath $Path -PathType Container)){
-    New-Item -ItemType Directory -Force -Path $Path | Out-Null
+function RIE-QueryDie([string]$m){ throw $m }
+
+function RIE-QueryTokenize([string]$Text){
+  if([string]::IsNullOrWhiteSpace($Text)){ return @() }
+  $t = $Text.ToLowerInvariant()
+  $parts = [regex]::Split($t, '[^a-z0-9]+')
+  $out = New-Object System.Collections.Generic.List[string]
+  foreach($p in @(@($parts))){
+    if(-not [string]::IsNullOrWhiteSpace($p)){ [void]$out.Add($p) }
+  }
+  return @($out.ToArray())
+}
+
+function RIE-QueryResolvePath([string]$RepoRoot,[string]$PathText){
+  if([string]::IsNullOrWhiteSpace($PathText)){ RIE-QueryDie "PATH_EMPTY" }
+  try {
+    if([System.IO.Path]::IsPathRooted($PathText)){ return $PathText }
+  } catch { }
+  return (Join-Path $RepoRoot $PathText)
+}
+
+function RIE-QueryShouldIncludeDecision($AudiencePolicy,$Decision){
+  $action = [string]$Decision["action"]
+  $allowWarnings = $false
+  $allowQuarantine = $false
+
+  if(($AudiencePolicy -is [hashtable]) -or ($AudiencePolicy -is [System.Collections.IDictionary])){
+    if($AudiencePolicy.ContainsKey("allow_warning_labeled_results")){ $allowWarnings = [bool]$AudiencePolicy["allow_warning_labeled_results"] }
+    if($AudiencePolicy.ContainsKey("allow_quarantined_results")){ $allowQuarantine = [bool]$AudiencePolicy["allow_quarantined_results"] }
+  }
+
+  switch($action){
+    "ALLOW_CHILD_SAFE" { return $true }
+    "ALLOW_WITH_EDUCATOR_WARNING" { return $allowWarnings }
+    "DOWNRANK" { return $allowWarnings }
+    "QUARANTINE_REVIEW_ONLY" { return $allowQuarantine }
+    default { return $false }
   }
 }
 
-function Write-Utf8NoBomLf([string]$Path,[string]$Text){
-  if([string]::IsNullOrWhiteSpace($Path)){ Die "WRITE_PATH_EMPTY" }
-  $dir = Split-Path -Parent $Path
-  if($dir -and -not (Test-Path -LiteralPath $dir -PathType Container)){
-    New-Item -ItemType Directory -Force -Path $dir | Out-Null
-  }
-  $t = $Text.Replace("`r`n","`n").Replace("`r","`n")
-  if(-not $t.EndsWith("`n")){ $t += "`n" }
-  $enc = New-Object System.Text.UTF8Encoding($false)
-  [System.IO.File]::WriteAllText($Path,$t,$enc)
-}
-
-function Parse-GateFile([string]$Path){
-  if(-not (Test-Path -LiteralPath $Path -PathType Leaf)){ Die ("PARSEGATE_MISSING: " + $Path) }
-  $tok = $null
-  $err = $null
-  [void][System.Management.Automation.Language.Parser]::ParseFile($Path,[ref]$tok,[ref]$err)
-  $errs = @(@($err))
-  if($errs.Count -gt 0){
-    $msg = ($errs | ForEach-Object { $_.ToString() }) -join "`n"
-    Die ("PARSEGATE_FAIL: " + $Path + "`n" + $msg)
+function RIE-QueryBuildAdmissionDecisionSummary($Decision){
+  return [ordered]@{
+    decision_id = [string]$Decision["decision_id"]
+    evaluation_id = [string]$Decision["evaluation_id"]
+    action = [string]$Decision["action"]
+    reason_code = [string]$Decision["reason_code"]
+    warning_label = [string]$Decision["warning_label"]
+    audience_band = [string]$Decision["audience_band"]
+    policy_id = [string]$Decision["policy_id"]
   }
 }
 
-function To-CanonJson($Value){
-  if($null -eq $Value){ return "null" }
-  if($Value -is [string]){ return (ConvertTo-Json -Compress -InputObject $Value) }
-  if($Value -is [bool]){ if($Value){ return "true" } else { return "false" } }
-  if(
-    $Value -is [byte] -or
-    $Value -is [int16] -or
-    $Value -is [int32] -or
-    $Value -is [int64] -or
-    $Value -is [uint16] -or
-    $Value -is [uint32] -or
-    $Value -is [uint64] -or
-    $Value -is [decimal] -or
-    $Value -is [double] -or
-    $Value -is [single]
-  ){
-    return ([string]::Format([System.Globalization.CultureInfo]::InvariantCulture, "{0}", $Value))
-  }
-  if(($Value -is [System.Collections.IDictionary]) -or ($Value -is [hashtable])){
-    $keys = @(@($Value.Keys) | ForEach-Object { [string]$_ } | Sort-Object)
-    $parts = New-Object System.Collections.Generic.List[string]
-    foreach($k in $keys){
-      [void]$parts.Add((ConvertTo-Json -Compress -InputObject $k) + ":" + (To-CanonJson $Value[$k]))
+function RIE-QueryRunV1(
+  [string]$RepoRoot,
+  [string]$QueryPath,
+  [string]$IndexPath,
+  [string]$AudiencePolicyPath,
+  [string]$SourcePolicyPath,
+  [string]$DomainProfilesPath,
+  [string]$OutPath
+){
+  $RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
+
+  if(-not (Test-Path -LiteralPath $QueryPath -PathType Leaf)){ RIE-QueryDie ("QUERY_MISSING: " + $QueryPath) }
+  if(-not (Test-Path -LiteralPath $IndexPath -PathType Leaf)){ RIE-QueryDie ("INDEX_MISSING: " + $IndexPath) }
+  if(-not (Test-Path -LiteralPath $AudiencePolicyPath -PathType Leaf)){ RIE-QueryDie ("AUDIENCE_POLICY_MISSING: " + $AudiencePolicyPath) }
+  if(-not (Test-Path -LiteralPath $SourcePolicyPath -PathType Leaf)){ RIE-QueryDie ("SOURCE_POLICY_MISSING: " + $SourcePolicyPath) }
+
+  if([string]::IsNullOrWhiteSpace($OutPath)){
+    $queriesDir = Join-Path $RepoRoot "proofs\queries"
+    if(-not (Test-Path -LiteralPath $queriesDir -PathType Container)){
+      New-Item -ItemType Directory -Force -Path $queriesDir | Out-Null
     }
-    return "{" + ((@($parts.ToArray())) -join ",") + "}"
+    $OutPath = Join-Path $queriesDir "rie_result_set.v1.json"
   }
-  if(($Value -is [System.Collections.IEnumerable]) -and -not ($Value -is [string])){
-    $parts = New-Object System.Collections.Generic.List[string]
-    foreach($item in $Value){
-      [void]$parts.Add((To-CanonJson $item))
-    }
-    return "[" + ((@($parts.ToArray())) -join ",") + "]"
-  }
-  if($Value -is [psobject] -and $Value.PSObject -and $Value.PSObject.Properties){
-    $h = @{}
-    foreach($p in @(@($Value.PSObject.Properties))){
-      $h[[string]$p.Name] = $p.Value
-    }
-    return (To-CanonJson $h)
-  }
-  return (ConvertTo-Json -Compress -InputObject ([string]$Value))
-}
 
-function Get-QueryTokens([string]$Text){
-  $tokens = [regex]::Matches($Text.ToLowerInvariant(),'[a-z0-9_:\.-]+') | ForEach-Object { $_.Value } | Where-Object { $_.Length -ge 2 }
-  return @(@($tokens) | Sort-Object -Unique)
-}
+  $query = RIE-GovLoadJson $QueryPath
+  $index = RIE-GovLoadJson $IndexPath
+  $aud = RIE-GovLoadJson $AudiencePolicyPath
+  $srcPol = RIE-GovLoadJson $SourcePolicyPath
+  $domainMap = RIE-GovLoadDomainProfileMap $DomainProfilesPath
 
-$RepoRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
+  $queryId = RIE-GovGetString $query "query_id"
+  if([string]::IsNullOrWhiteSpace($queryId)){ $queryId = RIE-GovNewId "qry" }
 
-$Lib = Join-Path $RepoRoot "scripts\rie_lib_v1.ps1"
-$IndexScript = Join-Path $RepoRoot "scripts\rie_index_sources_v1.ps1"
-Parse-GateFile $Lib
-Parse-GateFile $IndexScript
-. $Lib
-
-$IndexPath = Join-Path $RepoRoot "proofs\index\rie.keyword_index.v1.json"
-if(-not (Test-Path -LiteralPath $IndexPath -PathType Leaf)){
-  & (Get-Command powershell.exe -ErrorAction Stop).Source -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $IndexScript -RepoRoot $RepoRoot | Out-Null
-}
-
-$index = RIE-ParseJson $IndexPath
-if([string]$index["schema"] -ne "rie.keyword_index.v1"){ Die "BAD_INDEX_SCHEMA" }
-
-$sourceMap = @{}
-foreach($row in @(@($index["sources"]))){
-  $sourceMap[[string]$row["source_id"]] = $row
-}
-
-$scores = @{}
-foreach($tok in @(Get-QueryTokens $Query)){
-  if($index["keywords"].ContainsKey($tok)){
-    foreach($sid in @(@($index["keywords"][$tok]))){
-      if(-not $scores.ContainsKey([string]$sid)){ $scores[[string]$sid] = 0 }
-      $scores[[string]$sid] = [int]$scores[[string]$sid] + 1
+  $tokens = New-Object System.Collections.Generic.List[string]
+  if(RIE-GovHasKey $query "inputs"){
+    foreach($inp in @(@($query["inputs"]))){
+      if(($inp -is [hashtable]) -or ($inp -is [System.Collections.IDictionary])){
+        $kind = RIE-GovGetString $inp "kind"
+        if($kind -in @("keywords","formula_latex")){
+          $text = RIE-GovGetString $inp "text"
+          foreach($tk in @(@(RIE-QueryTokenize $text))){
+            [void]$tokens.Add($tk)
+          }
+        }
+      }
     }
   }
-}
 
-$results = New-Object System.Collections.Generic.List[hashtable]
-$rank = 0
-
-$orderedIds = @(
-  @(@($scores.GetEnumerator())) |
-    Sort-Object @{Expression={$_.Value};Descending=$true}, @{Expression={$_.Key};Descending=$false} |
-    ForEach-Object { [string]$_.Key }
-)
-
-foreach($sid in @($orderedIds)){
-  $rank = $rank + 1
-  $meta = $sourceMap[$sid]
-  $path = [string]$meta["path"]
-  $src = RIE-ParseJson $path
-  RIE-ValidateSourceRecordV1 $src ("result:" + $sid)
-
-  $row = [ordered]@{
-    rank      = $rank
-    source_id = $sid
-    score     = [int]$scores[$sid]
-    hash      = [string]$meta["hash"]
-    path      = $path
-    source    = $src
+  $uniqueTokens = New-Object System.Collections.Generic.List[string]
+  $seenToken = @{}
+  foreach($tk in @(@($tokens.ToArray()))){
+    if(-not $seenToken.ContainsKey($tk)){
+      $seenToken[$tk] = $true
+      [void]$uniqueTokens.Add($tk)
+    }
   }
-  [void]$results.Add($row)
+
+  $sourceMap = @{}
+  foreach($srcMeta in @(@($index["sources"]))){
+    if(($srcMeta -is [hashtable]) -or ($srcMeta -is [System.Collections.IDictionary])){
+      $sid = RIE-GovGetString $srcMeta "source_id"
+      if(-not [string]::IsNullOrWhiteSpace($sid)){ $sourceMap[$sid] = $srcMeta }
+    }
+  }
+
+  $candidateHits = @{}
+  if(RIE-GovHasKey $index "keywords"){
+    $kwMap = $index["keywords"]
+    if(($kwMap -is [hashtable]) -or ($kwMap -is [System.Collections.IDictionary])){
+      foreach($tk in @(@($uniqueTokens.ToArray()))){
+        if($kwMap.ContainsKey($tk)){
+          foreach($sid in @(@($kwMap[$tk]))){
+            $id = [string]$sid
+            if([string]::IsNullOrWhiteSpace($id)){ continue }
+            if(-not $candidateHits.ContainsKey($id)){ $candidateHits[$id] = 0 }
+            $candidateHits[$id] = [int]$candidateHits[$id] + 1
+          }
+        }
+      }
+    }
+  }
+
+  $resultRows = New-Object System.Collections.Generic.List[object]
+
+  foreach($sid in @(@($candidateHits.Keys | Sort-Object))){
+    if(-not $sourceMap.ContainsKey($sid)){ continue }
+
+    $srcMeta = $sourceMap[$sid]
+    $srcPathText = RIE-GovGetString $srcMeta "path"
+    if([string]::IsNullOrWhiteSpace($srcPathText)){ continue }
+
+    $srcPath = RIE-QueryResolvePath $RepoRoot $srcPathText
+    if(-not (Test-Path -LiteralPath $srcPath -PathType Leaf)){ continue }
+
+    $source = RIE-GovLoadJson $srcPath
+    $evaluation = RIE-EvaluateSourceV1 $source $aud $srcPol $domainMap
+    $decision = RIE-DecideAdmissionV1 $source $aud $srcPol $evaluation
+    [void](RIE-WriteGovernanceReceiptV1 $RepoRoot $decision $evaluation)
+
+    if(-not (RIE-QueryShouldIncludeDecision $aud $decision)){ continue }
+
+    $score = [double]$candidateHits[$sid]
+    if(([string]$decision["action"]) -eq "DOWNRANK"){ $score = $score * 0.5 }
+
+    $row = [ordered]@{
+      _sort_score = $score
+      _sort_source_id = [string]$sid
+      source = $source
+      segments = @()
+      admission_decision = (RIE-QueryBuildAdmissionDecisionSummary $decision)
+    }
+    [void]$resultRows.Add($row)
+  }
+
+  $sorted = @(@($resultRows.ToArray()) | Sort-Object @{Expression="_sort_score";Descending=$true}, @{Expression="_sort_source_id";Descending=$false})
+
+  $results = New-Object System.Collections.Generic.List[object]
+  for($i=0; $i -lt $sorted.Count; $i++){
+    $r = $sorted[$i]
+    [void]$results.Add([ordered]@{
+      rank = ($i + 1)
+      score = [double]$r["_sort_score"]
+      source = $r["source"]
+      segments = @($r["segments"])
+      admission_decision = $r["admission_decision"]
+    })
+  }
+
+  $resultSet = [ordered]@{
+    schema = "rie.result_set.v1"
+    query_id = $queryId
+    created_at_utc = (Get-Date).ToUniversalTime().ToString("o")
+    results = @($results.ToArray())
+  }
+
+  RIE-GovWriteUtf8NoBomLf $OutPath (RIE-GovToJson $resultSet)
+
+  return [ordered]@{
+    ok = $true
+    out_path = $OutPath
+    result_count = @(@($results.ToArray())).Count
+  }
 }
 
-$outObj = [ordered]@{
-  schema         = "rie.result_set.v1"
-  query          = $Query
-  created_at_utc = (Get-Date).ToUniversalTime().ToString("o")
-  result_count   = @(@($results.ToArray())).Count
-  results        = @(@($results.ToArray()))
-}
-
-$outDir = Join-Path $RepoRoot "proofs\queries"
-Ensure-Dir $outDir
-
-$safeQuery = (([regex]::Matches($Query.ToLowerInvariant(),'[a-z0-9]+') | ForEach-Object { $_.Value }) -join "_")
-if([string]::IsNullOrWhiteSpace($safeQuery)){ $safeQuery = "query" }
-
-$outPath = Join-Path $outDir ("rie_result_set_" + $safeQuery + ".json")
-Write-Utf8NoBomLf $outPath (To-CanonJson $outObj)
-
-Write-Host ("RIE_QUERY_OK: " + $outPath) -ForegroundColor Green
-Write-Host ("RESULT_COUNT=" + $outObj["result_count"]) -ForegroundColor Green
+$run = RIE-QueryRunV1 -RepoRoot $RepoRoot -QueryPath $QueryPath -IndexPath $IndexPath -AudiencePolicyPath $AudiencePolicyPath -SourcePolicyPath $SourcePolicyPath -DomainProfilesPath $DomainProfilesPath -OutPath $OutPath
+Write-Host ("RIE_QUERY_OK: " + $run["out_path"]) -ForegroundColor Green
+Write-Host ("RESULT_COUNT=" + [string]$run["result_count"]) -ForegroundColor Green
