@@ -1,0 +1,17 @@
+{
+  "schema": "rie.query_record.v1",
+  "query_id": "q_childsafe_001",
+  "created_at_utc": "2026-03-07T00:00:00Z",
+  "intent": "find_sources",
+  "inputs": [
+    {
+      "kind": "keywords",
+      "text": "nasa lecture demo solver"
+    }
+  ],
+  "constraints": {
+    "level": "hs",
+    "formats": ["video", "notes", "paper"],
+    "language": "en-US"
+  }
+}

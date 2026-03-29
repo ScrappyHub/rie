@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.rooted.dev/rie/rie.admission_decision.v1.schema.json",
+  "title": "rie.admission_decision.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "decision_id",
+    "decided_at_utc",
+    "source_id",
+    "audience_band",
+    "policy_id",
+    "action",
+    "reason_code"
+  ],
+  "properties": {
+    "schema": { "const": "rie.admission_decision.v1" },
+    "decision_id": { "type": "string", "minLength": 1 },
+    "decided_at_utc": { "type": "string", "format": "date-time" },
+    "source_id": { "type": "string", "minLength": 1 },
+    "source_hash": { "type": "string" },
+    "audience_band": {
+      "type": "string",
+      "enum": ["child_7_10", "child_11_13", "teen", "adult"]
+    },
+    "policy_id": { "type": "string", "minLength": 1 },
+    "evaluation_id": { "type": "string" },
+    "action": {
+      "type": "string",
+      "enum": ["ALLOW_CHILD_SAFE", "ALLOW_WITH_EDUCATOR_WARNING", "QUARANTINE_REVIEW_ONLY", "DOWNRANK", "DENY"]
+    },
+    "reason_code": {
+      "type": "string",
+      "enum": [
+        "ALLOW_CHILD_SAFE_TRUSTED_EDU",
+        "ALLOW_CHILD_SAFE_GOV_SCIENCE",
+        "ALLOW_CHILD_SAFE_PUBLISHER_BACKED",
+        "ALLOW_WITH_EDUCATOR_WARNING_COMMUNITY_SOURCE",
+        "DOWNRANK_DOMAIN_DOMINANCE",
+        "DOWNRANK_LOW_SIGNAL",
+        "QUARANTINE_REQUIRES_REVIEW",
+        "QUARANTINE_COMMUNITY_SOURCE_UNVERIFIED",
+        "DENY_MISSING_PROVENANCE",
+        "DENY_FORBIDDEN_ANSWER_CONTENT",
+        "DENY_LOW_TRUST_UNVERIFIED_SOURCE",
+        "DENY_DOMAIN_POLICY_BLOCKED",
+        "DENY_AUDIENCE_POLICY_CHILD_SAFE",
+        "DENY_TRUST_SIGNAL_MISMATCH"
+      ]
+    },
+    "warning_label": { "type": "string" },
+    "notes": { "type": "string" }
+  }
+}

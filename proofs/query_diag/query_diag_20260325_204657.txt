@@ -1,0 +1,9 @@
+powershell.exe : C:\dev\rie\scripts\rie_query_v1.ps1 : Cannot process command 
+because of one or 
+At line:2 char:3
++   & $PSExe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Comman ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\dev\rie\scri...ause of one or :St 
+   ring) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

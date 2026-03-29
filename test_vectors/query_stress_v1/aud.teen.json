@@ -1,0 +1,14 @@
+{
+  "schema": "rie.audience_policy.v1",
+  "policy_id": "aud.teen.query_stress.v1",
+  "audience_band": "teen",
+  "require_provenance": true,
+  "require_institutional_or_publisher_anchor": false,
+  "allow_community_sources": true,
+  "allow_video_platforms": true,
+  "allow_warning_labeled_results": true,
+  "allow_quarantined_results": true,
+  "deny_for_answer_like_patterns": true,
+  "max_results_per_domain": 6,
+  "min_trust_signal_count": 1
+}

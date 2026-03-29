@@ -1,0 +1,24 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_nasa_q_001",
+  "content_kind": "course_page",
+  "title": "NASA Example Lecture Demo",
+  "publisher": "NASA",
+  "summary": "A safe educational source for climate and Earth science.",
+  "audience": "child_safe",
+  "provenance": {
+    "discovered_from": "https://www.nasa.gov",
+    "retrieved_at_utc": "2026-03-07T00:00:00Z",
+    "canonical_url": "https://www.nasa.gov/"
+  },
+  "trust_signals": [
+    {
+      "schema": "rie.trust_signal.v1",
+      "signal_id": "sig_nasa_q_001",
+      "tier": "A",
+      "kind": "government_science_source",
+      "evidence": { "note": "NASA official domain", "domain": "nasa.gov" },
+      "observed_at_utc": "2026-03-07T00:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_qs_nasa_001",
+  "content_kind": "course_page",
+  "title": "NASA Lecture Demo",
+  "publisher": "NASA",
+  "provenance": { "discovered_from": "https://www.nasa.gov", "retrieved_at_utc": "2026-03-08T00:00:00Z", "canonical_url": "https://www.nasa.gov/" },
+  "trust_signals": [
+    { "schema": "rie.trust_signal.v1", "signal_id": "sig_qs_a", "tier": "A", "kind": "government_science_source", "evidence": { "note": "NASA official domain", "domain": "nasa.gov" }, "observed_at_utc": "2026-03-08T00:00:00Z" }
+  ]
+}

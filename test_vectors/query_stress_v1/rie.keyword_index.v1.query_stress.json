@@ -1,0 +1,20 @@
+{
+  "schema": "rie.keyword_index.v1",
+  "generated_at_utc": "2026-03-08T00:00:00Z",
+  "source_count": 3,
+  "keyword_count": 7,
+  "sources": [
+    { "source_id": "s_qs_nasa_001", "path": "test_vectors\\query_stress_v1\\source_record.nasa.json", "hash": "sha256:dummy_a" },
+    { "source_id": "s_qs_comm_001", "path": "test_vectors\\query_stress_v1\\source_record.community.json", "hash": "sha256:dummy_b" },
+    { "source_id": "s_qs_block_001", "path": "test_vectors\\query_stress_v1\\source_record.blocked.json", "hash": "sha256:dummy_c" }
+  ],
+  "keywords": {
+    "nasa": ["s_qs_nasa_001"],
+    "lecture": ["s_qs_nasa_001","s_qs_comm_001"],
+    "demo": ["s_qs_nasa_001","s_qs_comm_001"],
+    "community": ["s_qs_comm_001"],
+    "solver": ["s_qs_block_001"],
+    "blocked": ["s_qs_block_001"],
+    "science": ["s_qs_nasa_001","s_qs_comm_001"]
+  }
+}

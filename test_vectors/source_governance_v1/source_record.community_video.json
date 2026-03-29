@@ -1,0 +1,21 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_comm_001",
+  "content_kind": "video",
+  "title": "Community Science Video",
+  "provenance": {
+    "discovered_from": "https://youtube.com/watch?v=abc",
+    "retrieved_at_utc": "2026-03-07T00:00:00Z",
+    "canonical_url": "https://youtube.com/watch?v=abc"
+  },
+  "trust_signals": [
+    {
+      "schema": "rie.trust_signal.v1",
+      "signal_id": "sig_comm_001",
+      "tier": "C",
+      "kind": "lab_page_linked",
+      "evidence": { "note": "Community educator with some linkage", "domain": "youtube.com" },
+      "observed_at_utc": "2026-03-07T00:00:00Z"
+    }
+  ]
+}

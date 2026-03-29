@@ -1,0 +1,88 @@
+{
+  "schema": "rie.source_policy.v1",
+  "policy_id": "src.child_7_10.v1",
+  "version": "v1",
+  "created_at_utc": "2026-03-07T00:00:00Z",
+  "label": "Child Safe Source Policy",
+  "description": "Default deny, provenance-first, trust-labeled source admission policy for young learners.",
+  "default_action": "DENY",
+  "audience_policy_id": "aud.child_7_10.v1",
+  "domain_lists": {
+    "allowlist": [
+      "nasa.gov",
+      "nih.gov",
+      "si.edu",
+      "khanacademy.org",
+      "ted.com"
+    ],
+    "denylist": [
+      "coursehero.com",
+      "chegg.com"
+    ],
+    "cautionlist": [
+      "youtube.com"
+    ],
+    "watchlist": [
+      "wikipedia.org"
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "deny-answer-like",
+      "priority": 1,
+      "when": {
+        "forbid_answer_like_patterns": true
+      },
+      "decision": {
+        "action": "DENY",
+        "reason_code": "DENY_FORBIDDEN_ANSWER_CONTENT"
+      }
+    },
+    {
+      "rule_id": "deny-missing-provenance",
+      "priority": 2,
+      "when": {
+        "requires_provenance": true
+      },
+      "decision": {
+        "action": "DENY",
+        "reason_code": "DENY_MISSING_PROVENANCE"
+      }
+    },
+    {
+      "rule_id": "deny-domain-policy",
+      "priority": 3,
+      "when": {
+        "domain_list_membership": "denylist"
+      },
+      "decision": {
+        "action": "DENY",
+        "reason_code": "DENY_DOMAIN_POLICY_BLOCKED"
+      }
+    },
+    {
+      "rule_id": "allow-trusted-child-safe",
+      "priority": 4,
+      "when": {
+        "requires_institutional_or_publisher_anchor": true,
+        "min_trust_signal_count": 1
+      },
+      "decision": {
+        "action": "ALLOW_CHILD_SAFE",
+        "reason_code": "ALLOW_CHILD_SAFE_TRUSTED_EDU"
+      }
+    },
+    {
+      "rule_id": "quarantine-community-unverified",
+      "priority": 5,
+      "when": {
+        "allow_community_sources": false
+      },
+      "decision": {
+        "action": "QUARANTINE_REVIEW_ONLY",
+        "reason_code": "QUARANTINE_COMMUNITY_SOURCE_UNVERIFIED",
+        "warning_label": "Community source requires educator review."
+      }
+    }
+  ]
+}

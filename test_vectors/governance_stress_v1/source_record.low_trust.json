@@ -1,0 +1,7 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_low_trust_001",
+  "content_kind": "paper",
+  "title": "Low Trust Independent Blog",
+  "provenance": { "discovered_from": "https://unknown-example.org/post", "retrieved_at_utc": "2026-03-08T00:00:00Z", "canonical_url": "https://unknown-example.org/post" }
+}

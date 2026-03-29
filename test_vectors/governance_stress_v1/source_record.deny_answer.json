@@ -1,0 +1,8 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_deny_answer_001",
+  "content_kind": "notes",
+  "title": "Answer Site",
+  "provenance": { "discovered_from": "https://coursehero.com/abc", "retrieved_at_utc": "2026-03-08T00:00:00Z", "canonical_url": "https://coursehero.com/abc" },
+  "answer": "forbidden"
+}

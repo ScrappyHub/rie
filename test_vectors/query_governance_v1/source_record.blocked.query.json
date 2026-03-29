@@ -1,0 +1,12 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_block_q_001",
+  "content_kind": "notes",
+  "title": "Solver Notes",
+  "provenance": {
+    "discovered_from": "https://coursehero.com/x",
+    "retrieved_at_utc": "2026-03-07T00:00:00Z",
+    "canonical_url": "https://coursehero.com/x"
+  },
+  "answer": "not allowed"
+}

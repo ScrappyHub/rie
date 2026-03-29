@@ -1,0 +1,13 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_bad_answer_001",
+  "content_kind": "notes",
+  "title": "Homework Solver",
+  "provenance": {
+    "discovered_from": "https://coursehero.com/x",
+    "retrieved_at_utc": "2026-03-07T00:00:00Z",
+    "canonical_url": "https://coursehero.com/x"
+  },
+  "tags": ["solver"],
+  "answer": "42"
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "rie.source_record.v1",
+  "source_id": "s_watchlist_001",
+  "content_kind": "notes",
+  "title": "Reference Encyclopedia Entry",
+  "provenance": { "discovered_from": "https://wikipedia.org/wiki/Climate", "retrieved_at_utc": "2026-03-08T00:00:00Z", "canonical_url": "https://wikipedia.org/wiki/Climate" },
+  "trust_signals": [
+    { "schema": "rie.trust_signal.v1", "signal_id": "sig_w1", "tier": "B", "kind": "publisher_verified", "evidence": { "note": "Reference source", "domain": "wikipedia.org" }, "observed_at_utc": "2026-03-08T00:00:00Z" }
+  ]
+}

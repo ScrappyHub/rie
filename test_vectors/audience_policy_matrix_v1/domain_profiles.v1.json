@@ -1,0 +1,5 @@
+{
+  "profiles": [
+    { "schema": "rie.domain_profile.v1", "domain": "youtube.com", "observed_at_utc": "2026-03-08T00:00:00Z", "classification": "community_educator", "status": "caution", "policy_tags": ["community_source","requires_warning"] }
+  ]
+}

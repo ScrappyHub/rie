@@ -4,52 +4,49 @@
   "title": "rie.result_set.v1",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "schema",
-    "query_id",
-    "created_at_utc",
-    "results"
-  ],
+  "required": ["schema", "query_id", "created_at_utc", "results"],
   "properties": {
     "schema": { "const": "rie.result_set.v1" },
-
-    "query_id": {
-      "type": "string"
-    },
-
-    "created_at_utc": {
-      "type": "string",
-      "format": "date-time"
-    },
-
+    "query_id": { "type": "string" },
+    "created_at_utc": { "type": "string", "format": "date-time" },
     "results": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "rank",
-          "source",
-          "segments"
-        ],
+        "required": ["rank", "source", "segments", "admission_decision"],
         "properties": {
-          "rank": {
-            "type": "integer",
-            "minimum": 1
-          },
-
-          "score": {
-            "type": "number"
-          },
-
-          "source": {
-            "$ref": "rie.source_record.v1.schema.json"
-          },
-
+          "rank": { "type": "integer", "minimum": 1 },
+          "score": { "type": "number" },
+          "source": { "$ref": "rie.source_record.v1.schema.json" },
           "segments": {
             "type": "array",
-            "items": {
-              "$ref": "rie.segment_pointer.v1.schema.json"
+            "items": { "$ref": "rie.segment_pointer.v1.schema.json" }
+          },
+          "admission_decision": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["action", "reason_code", "audience_band", "policy_id"],
+            "properties": {
+              "decision_id": { "type": "string" },
+              "evaluation_id": { "type": "string" },
+              "action": {
+                "type": "string",
+                "enum": [
+                  "ALLOW_CHILD_SAFE",
+                  "ALLOW_WITH_EDUCATOR_WARNING",
+                  "QUARANTINE_REVIEW_ONLY",
+                  "DOWNRANK",
+                  "DENY"
+                ]
+              },
+              "reason_code": { "type": "string" },
+              "warning_label": { "type": "string" },
+              "audience_band": {
+                "type": "string",
+                "enum": ["child_7_10", "child_11_13", "teen", "adult"]
+              },
+              "policy_id": { "type": "string" }
             }
           }
         }

@@ -1,0 +1,36 @@
+{
+  "profiles": [
+    {
+      "schema": "rie.domain_profile.v1",
+      "domain": "nasa.gov",
+      "observed_at_utc": "2026-03-07T00:00:00Z",
+      "classification": "government",
+      "status": "allow",
+      "policy_tags": ["child_safe_preferred"]
+    },
+    {
+      "schema": "rie.domain_profile.v1",
+      "domain": "ted.com",
+      "observed_at_utc": "2026-03-07T00:00:00Z",
+      "classification": "educational_video_platform",
+      "status": "allow",
+      "policy_tags": ["child_safe_preferred","video_platform"]
+    },
+    {
+      "schema": "rie.domain_profile.v1",
+      "domain": "youtube.com",
+      "observed_at_utc": "2026-03-07T00:00:00Z",
+      "classification": "community_educator",
+      "status": "caution",
+      "policy_tags": ["community_source","requires_warning"]
+    },
+    {
+      "schema": "rie.domain_profile.v1",
+      "domain": "coursehero.com",
+      "observed_at_utc": "2026-03-07T00:00:00Z",
+      "classification": "blocked",
+      "status": "deny",
+      "policy_tags": ["denylisted"]
+    }
+  ]
+}

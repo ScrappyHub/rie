@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.rooted.dev/rie/rie.domain_profile.v1.schema.json",
+  "title": "rie.domain_profile.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "domain",
+    "observed_at_utc",
+    "classification"
+  ],
+  "properties": {
+    "schema": { "const": "rie.domain_profile.v1" },
+    "domain": { "type": "string", "minLength": 1 },
+    "observed_at_utc": { "type": "string", "format": "date-time" },
+    "classification": {
+      "type": "string",
+      "enum": [
+        "institution",
+        "publisher",
+        "government",
+        "museum_library_archive",
+        "educational_video_platform",
+        "community_educator",
+        "general_web",
+        "blocked"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["allow", "caution", "watch", "deny"]
+    },
+    "signals": {
+      "type": "array",
+      "items": { "$ref": "rie.trust_signal.v1.schema.json" }
+    },
+    "notes": { "type": "string" },
+    "policy_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "child_safe_preferred",
+          "requires_warning",
+          "community_source",
+          "video_platform",
+          "institutional_anchor_present",
+          "publisher_anchor_present",
+          "denylisted",
+          "caution_listed",
+          "watch_listed"
+        ]
+      }
+    }
+  }
+}
