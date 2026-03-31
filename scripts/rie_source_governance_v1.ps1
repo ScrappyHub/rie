@@ -416,11 +416,11 @@ function RIE-DecideAdmissionV1(
     }
   }
 
-  $requireAnchor = RIE-GovGetBool $AudiencePolicy "require_institutional_or_publisher_anchor" $false
-  if($requireAnchor -and (-not $hasAnchor)){
+  $minTrust = RIE-GovGetInt $AudiencePolicy "min_trust_signal_count" 0
+  if($trustCnt -lt $minTrust){
     return [ordered]@{
       action = "DENY"
-      reason_code = "DENY_MISSING_INSTITUTIONAL_OR_PUBLISHER_ANCHOR"
+      reason_code = "DENY_TRUST_SIGNAL_THRESHOLD"
       warning_label = ""
       audience_band = $audienceBand
       source_id = $sourceId
@@ -428,11 +428,11 @@ function RIE-DecideAdmissionV1(
     }
   }
 
-  $minTrust = RIE-GovGetInt $AudiencePolicy "min_trust_signal_count" 0
-  if($trustCnt -lt $minTrust){
+  $requireAnchor = RIE-GovGetBool $AudiencePolicy "require_institutional_or_publisher_anchor" $false
+  if($requireAnchor -and (-not $hasAnchor)){
     return [ordered]@{
       action = "DENY"
-      reason_code = "DENY_TRUST_SIGNAL_THRESHOLD"
+      reason_code = "DENY_MISSING_INSTITUTIONAL_OR_PUBLISHER_ANCHOR"
       warning_label = ""
       audience_band = $audienceBand
       source_id = $sourceId
