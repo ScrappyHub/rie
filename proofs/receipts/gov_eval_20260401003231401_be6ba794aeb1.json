@@ -1,0 +1,1 @@
+{"schema":"rie.source_governance.v1","evaluation_id":"gov_eval_20260401003231401_be6ba794aeb1","utc":"2026-04-01T00:32:31.4058170Z","source_id":"s_qs_nasa_001","domain":"www.nasa.gov","audience_band":"teen","action":"ALLOW","reason_code":"ALLOW_TRUSTED_SOURCE","warning_label":"","audience_policy_id":"aud.teen.query_stress.v1","source_policy_id":"src.teen.query_stress.v1"}

@@ -1,42 +1,11 @@
-\# RIE Canonical Status
+# CANONICAL STATUS
 
+- Retrieval core: GREEN
+- Hash lookup: GREEN
+- Governance core: GREEN
+- Audience policy matrix: GREEN
+- Query governance: GREEN
+- Tier-0 runner: GREEN
+- Tier-0 stress runner: GREEN
 
-
-Tier-0 deterministic retrieval core is GREEN.
-
-
-
-\## Validated capabilities
-
-
-
-\- source record validation
-
-\- keyword indexing
-
-\- keyword query result sets
-
-\- hash store publish
-
-\- hash lookup resolve
-
-\- deterministic runner receipts
-
-\- deterministic sha256 manifest
-
-
-
-\## Authoritative runner
-
-
-
-scripts/\_RUN\_rie\_tier0\_v1.ps1
-
-
-
-\## Success token
-
-
-
-RIE\_TIER0\_V1\_OK
-
+This frozen state is the authoritative governed retrieval core before UI bridge work.

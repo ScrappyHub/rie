@@ -1,0 +1,33 @@
+{
+  "version": "rie.source_registry.v1",
+  "generated_utc": "2026-03-27T00:00:00Z",
+  "sources": [
+    {
+      "source_id": "nasa.gov",
+      "type": "government",
+      "trust_tier": "T0",
+      "domains": ["nasa.gov"],
+      "allowed_audiences": ["child","teen","adult"],
+      "content_classes": ["science","space","education"],
+      "requires_https": true
+    },
+    {
+      "source_id": "nih.gov",
+      "type": "government",
+      "trust_tier": "T0",
+      "domains": ["nih.gov"],
+      "allowed_audiences": ["child","teen","adult"],
+      "content_classes": ["health","biology"],
+      "requires_https": true
+    },
+    {
+      "source_id": "wikipedia.org",
+      "type": "reference",
+      "trust_tier": "T2",
+      "domains": ["wikipedia.org"],
+      "allowed_audiences": ["teen","adult"],
+      "content_classes": ["general"],
+      "requires_corroboration": true
+    }
+  ]
+}

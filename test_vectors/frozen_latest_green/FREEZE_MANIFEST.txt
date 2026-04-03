@@ -1,9 +1,6 @@
-RIE_TIER0_FREEZE_OK
-STATUS=GREEN
-RUNNER=scripts/_RUN_rie_tier0_v1.ps1
-PRIMARY_SELFTEST=scripts/_selftest_rie_v1.ps1
-HASH_SELFTEST=scripts/_selftest_rie_hash_lookup_v1.ps1
-QUERY_SELFTEST=scripts/_selftest_rie_query_v1.ps1
-INDEX_PROOF=proofs/index/rie.keyword_index.v1.json
-QUERY_PROOF=proofs/queries/rie_result_set_example_lecture_demo.json
-TOKEN=RIE_TIER0_V1_OK
+RIE FREEZE MANIFEST
+UTC=2026-04-03T22:55:53.0403723Z
+REPO_ROOT=C:\dev\rie
+LATEST_TIER0_HASH_MANIFEST=C:\dev\rie\proofs\hashes\rie_tier0_runner_20260403_225542_sha256sums.txt
+REQUIRED_SUCCESS_TOKENS=RIE_QUERY_SELFTEST_V1_OK;RIE_TIER0_V1_OK;RIE_TIER0_STRESS_V1_OK
+STATUS=FROZEN_GREEN_CANDIDATE
