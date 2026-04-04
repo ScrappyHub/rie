@@ -1,0 +1,15 @@
+﻿RIE FULL GREEN FREEZE
+UTC=2026-04-04T01:26:42.2590130Z
+
+LOCKED TOKENS
+RIE_TIER0_V1_OK
+RIE_TIER0_STRESS_V1_OK
+RIE_QUERY_SELFTEST_V1_OK
+RIE_GOVERNANCE_STRESS_SELFTEST_V1_OK
+RIE_QUERY_STRESS_SELFTEST_V1_OK
+
+ARTIFACTS
+proofs\receipts\rie.tier0.runner.v1.ndjson
+proofs\receipts\rie.source_governance.v1.ndjson
+proofs\hashes\rie_tier0_runner_20260404_012623_sha256sums.txt
+proofs\hashes\rie_tier0_stress_20260404_012623_sha256sums.txt

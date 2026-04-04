@@ -1,0 +1,1 @@
+{"schema":"rie.source_governance.v1","evaluation_id":"gov_eval_20260403235236351_a8e152d2afe0","utc":"2026-04-03T23:52:36.3875776Z","source_id":"s_block_q_001","domain":"coursehero.com","audience_band":"child_7_10","action":"DENY","reason_code":"DENY_FORBIDDEN_ANSWER_CONTENT","warning_label":"","audience_policy_id":"aud.child_7_10.v1","source_policy_id":"src.child_7_10.v1"}
