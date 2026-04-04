@@ -1,6 +1,11 @@
-RIE FREEZE MANIFEST
-UTC=2026-04-03T22:55:53.0403723Z
-REPO_ROOT=C:\dev\rie
-LATEST_TIER0_HASH_MANIFEST=C:\dev\rie\proofs\hashes\rie_tier0_runner_20260403_225542_sha256sums.txt
-REQUIRED_SUCCESS_TOKENS=RIE_QUERY_SELFTEST_V1_OK;RIE_TIER0_V1_OK;RIE_TIER0_STRESS_V1_OK
-STATUS=FROZEN_GREEN_CANDIDATE
+RIE TIER0 FREEZE MANIFEST
+utc=2026-04-04T20:44:12.7710657Z
+freeze_stamp=20260404_204412
+repo_root=C:\dev\rie
+tier0_hash_manifest=C:\dev\rie\proofs\hashes\rie_tier0_runner_20260404_190433_sha256sums.txt
+tier0_hash_manifest_name=rie_tier0_runner_20260404_190433_sha256sums.txt
+runner=scripts\_RUN_rie_tier0_v1.ps1
+stress_runner=scripts\_RUN_rie_tier0_stress_v1.ps1
+gov_stress=scripts\_selftest_rie_governance_stress_v1.ps1
+query_stress=scripts\_selftest_rie_query_stress_v1.ps1
+status=FROZEN_GREEN
