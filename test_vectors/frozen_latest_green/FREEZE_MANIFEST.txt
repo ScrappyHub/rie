@@ -1,11 +1,15 @@
 RIE TIER0 FREEZE MANIFEST
-utc=2026-04-04T20:44:12.7710657Z
-freeze_stamp=20260404_204412
-repo_root=C:\dev\rie
-tier0_hash_manifest=C:\dev\rie\proofs\hashes\rie_tier0_runner_20260404_190433_sha256sums.txt
-tier0_hash_manifest_name=rie_tier0_runner_20260404_190433_sha256sums.txt
-runner=scripts\_RUN_rie_tier0_v1.ps1
-stress_runner=scripts\_RUN_rie_tier0_stress_v1.ps1
-gov_stress=scripts\_selftest_rie_governance_stress_v1.ps1
-query_stress=scripts\_selftest_rie_query_stress_v1.ps1
-status=FROZEN_GREEN
+UTC=2026-04-05T03:08:18.5204530Z
+REPO_ROOT=C:\dev\rie
+TIER0_RUNNER=C:\dev\rie\scripts\_RUN_rie_tier0_v1.ps1
+STRESS_RUNNER=C:\dev\rie\scripts\_RUN_rie_tier0_stress_v1.ps1
+TIER0_STDOUT=C:\dev\rie\proofs\logs\freeze_tier0_stdout_20260405_030801.log
+TIER0_STDERR=C:\dev\rie\proofs\logs\freeze_tier0_stderr_20260405_030801.log
+STRESS_STDOUT=C:\dev\rie\proofs\logs\freeze_stress_stdout_20260405_030801.log
+STRESS_STDERR=C:\dev\rie\proofs\logs\freeze_stress_stderr_20260405_030801.log
+LATEST_HASH_MANIFEST=C:\dev\rie\proofs\hashes\rie_tier0_runner_20260405_030808_sha256sums.txt
+TIER0_STDOUT_SHA256=79ef9197aab3e83b2d964f3d58b7b05d26f950b2a047e2343bde9f8694dc1883
+TIER0_STDERR_SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+STRESS_STDOUT_SHA256=27fcfa8100c71cedc216755fe793493ba079eb784c54658799705b95622e7383
+STRESS_STDERR_SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+LATEST_HASH_MANIFEST_SHA256=5e905a7c0c94655a175d654587ad5d28655a85e5348f61966e3ff3faecd4590e
